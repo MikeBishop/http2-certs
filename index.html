@@ -315,9 +315,9 @@ li, p {
   <meta name="generator" content="xml2rfc version 2.5.1 - http://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
-  <meta name="dct.creator" content="Thomson, M. and M. Bishop" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-thomson-http2-client-certs-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-4-12" />
+  <meta name="dct.creator" content="Bishop, M. and M. Thomson" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-bishop-httpbis-http2-additional-certs-latest" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-4-13" />
   <meta name="dct.abstract" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
   <meta name="description" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
 
@@ -330,23 +330,23 @@ li, p {
     
     	<tr>
   <td class="left">HTTP</td>
-  <td class="right">M. Thomson</td>
-</tr>
-<tr>
-  <td class="left">Internet-Draft</td>
-  <td class="right">Mozilla</td>
-</tr>
-<tr>
-  <td class="left">Intended status: Standards Track</td>
   <td class="right">M. Bishop</td>
 </tr>
 <tr>
-  <td class="left">Expires: October 14, 2016</td>
+  <td class="left">Internet-Draft</td>
   <td class="right">Microsoft</td>
 </tr>
 <tr>
+  <td class="left">Intended status: Standards Track</td>
+  <td class="right">M. Thomson</td>
+</tr>
+<tr>
+  <td class="left">Expires: October 15, 2016</td>
+  <td class="right">Mozilla</td>
+</tr>
+<tr>
   <td class="left"></td>
-  <td class="right">April 12, 2016</td>
+  <td class="right">April 13, 2016</td>
 </tr>
 
     	
@@ -354,7 +354,7 @@ li, p {
   </table>
 
   <p class="title">Secondary Certificate Authentication in HTTP/2<br />
-  <span class="filename">draft-thomson-http2-client-certs-latest</span></p>
+  <span class="filename">draft-bishop-httpbis-http2-additional-certs-latest</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
@@ -369,7 +369,7 @@ li, p {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on October 14, 2016.</p>
+<p>This Internet-Draft will expire on October 15, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -432,8 +432,8 @@ li, p {
 <p id="rfc.section.1.p.2">Many existing HTTP <a href="#RFC7230">[RFC7230]</a> servers also have authentication requirements for the resources they serve.  Of the bountiful authentication options available for authenticating HTTP requests, client certificates present a unique challenge for resource-specific authentication requirements because of the interaction with the underlying TLS layer.</p>
 <p id="rfc.section.1.p.3">TLS 1.2 <a href="#RFC5246">[RFC5246]</a> supports one server and one client certificate on a connection.  These certificates may contain multiple identities, but only one certificate may be provided.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#server-certificate-authentication" id="server-certificate-authentication">Server Certificate Authentication</a></h1>
-<p id="rfc.section.1.1.p.1">Section 9.1.1 of <a href="#RFC7540">[RFC7540]</a> describes how connections may be reused as long as the server is authoritative for both origins. A server is considered authoritative for both origins if DNS resolves both origins to the IP address of the server and (for TLS) if the certificate presented by the server contains both origins, either as the Subject or contained in the Subject Alternative Names field.</p>
-<p><a href="#I-D.ietf-httpbis-alt-svc">[I-D.ietf-httpbis-alt-svc]</a> enables a step of abstraction from the DNS resolution. If both hosts have provided an Alternative Service at hostnames which resolve to the IP address of the server, they are considered authoritative just as if DNS resolved the origin itself to that address. However, the server&#8217;s one TLS certificate is still required to contain the name of the origin in question.</p>
+<p id="rfc.section.1.1.p.1">Section 9.1.1 of <a href="#RFC7540">[RFC7540]</a> describes how connections may be used to make requests from multiple origins as long as the server is authoritative for both. A server is considered authoritative for an origin if DNS resolves the origin to the IP address of the server and (for TLS) if the certificate presented by the server contains the origin in the Subject Alternative Names field.</p>
+<p><a href="#I-D.ietf-httpbis-alt-svc">[I-D.ietf-httpbis-alt-svc]</a> enables a step of abstraction from the DNS resolution. If both hosts have provided an Alternative Service at hostnames which resolve to the IP address of the server, they are considered authoritative just as if DNS resolved the origin itself to that address. However, the server&#8217;s one TLS certificate is still required to contain the name of each origin in question.</p>
 <p id="rfc.section.1.1.p.3">Servers which host many origins often would prefer to have separate certificates for some sets of origins. This may be for ease of certificate management (the ability to separately revoke or renew them), due to different sources of certificates (a CDN acting on behalf of multiple origins), or other factors which might drive this administrative decision. Clients connecting to such origins cannot currently reuse connections, even if both client and server would prefer to do so.</p>
 <h1 id="rfc.section.1.2"><a href="#rfc.section.1.2">1.2.</a> <a href="#client-certificate-authentication" id="client-certificate-authentication">Client Certificate Authentication</a></h1>
 <p id="rfc.section.1.2.p.1">For servers that wish to use client certificates to authenticate users, they might request client authentication during or immediately after the TLS handshake. However, if not all users or resources need certificate-based authentication, a request for a certificate has the unfortunate consequence of triggering the client to seek a certificate, possibly requiring user interaction, network traffic, or other time-consuming activities. During this time, the connection is stalled in many implementations. Such a request can result in a poor experience, particularly when sent to a client that does not expect the request.</p>
@@ -485,7 +485,7 @@ Client                                      Server
 <p id="rfc.section.1.3.p.3">This could be done in a naive manner by replicating the messages as HTTP/2 frames on each stream. However, this would create needless redundancy between streams and require frequent expensive signing operations. Instead, this draft lifts the bulky portions of each message into frames on stream zero and permits the on-stream frames to incorporate them by reference as needed.</p>
 <p><a href="#discovery">Section 2</a> describes how clients and servers can detect support for this feature in peers and situations which call for it.  <a href="#certs-http2">Section 3</a> describes how certificates can be requested and presented at the HTTP/2 framing layer using several new frame types which parallel the TLS 1.3 message exchange, using the flows described in <a href="#intro-server-auth">Section 1.3.1</a> and <a href="#intro-client-auth">Section 1.3.2</a>. Finally, <a href="#errors">Section 4</a> defines new error types which can be used to notify peers when the exchange has not been successful.</p>
 <h1 id="rfc.section.1.3.1"><a href="#rfc.section.1.3.1">1.3.1.</a> <a href="#intro-server-auth" id="intro-server-auth">Server authentication</a></h1>
-<p id="rfc.section.1.3.1.p.1">When a client wishes to obtain additional certificates from a server that has signaled support for HTTP certificate authentication (see <a href="#setting">Section 2.1</a>), it does this by sending at least one <samp>CERTIFICATE_REQUEST</samp> frame (see <a href="#http-cert-request">Section 3.3</a>) on stream zero.</p>
+<p id="rfc.section.1.3.1.p.1">When a client discovers that a server has additional certificates (for example, via an ORIGIN frame; see <a href="#discovery">Section 2</a>) and wishes to examine them, it does this by sending at least one <samp>CERTIFICATE_REQUEST</samp> frame (see <a href="#http-cert-request">Section 3.3</a>) on stream zero.</p>
 <p id="rfc.section.1.3.1.p.2">Servers respond to certificate authentication requests by sending one or more <samp>CERTIFICATE</samp> frames (see <a href="#http-certificate">Section 3.4</a>) followed by a <samp>CERTIFICATE_PROOF</samp> frame (see <a href="#http-cert-proof">Section 3.5</a>), on stream zero.</p>
 <p id="rfc.section.1.3.1.p.3">The exchange then looks like this:</p>
 <div id="rfc.figure.3"/>
@@ -520,7 +520,7 @@ Client                                      Server
    
 </pre>
 <p class="figure">Figure 4: HTTP/2 Reactive Certificate Authentication</p>
-<p id="rfc.section.1.3.2.p.4">To avoid the extra round-trip per stream required for a challenge and response, the <samp>AUTOMATIC_USE</samp> flag enables a certificate to be automatically used by the recipient on subsequent requests without sending a <samp>CERTIFICATE_REQUIRED</samp> exchange.</p>
+<p id="rfc.section.1.3.2.p.4">To avoid the extra round-trip per stream required for a challenge and response, the <samp>AUTOMATIC_USE</samp> flag enables a certificate to be automatically used by the recipient on subsequent requests without sending a <samp>CERTIFICATE_REQUIRED</samp> exchange.  This flag is always set by servers, but optional for clients.</p>
 <h1 id="rfc.section.1.4"><a href="#rfc.section.1.4">1.4.</a> <a href="#terminology" id="terminology">Terminology</a></h1>
 <p id="rfc.section.1.4.p.1">RFC 2119 <a href="#RFC2119">[RFC2119]</a> defines the terms &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;SHOULD&#8221; and &#8220;MAY&#8221;.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#discovery" id="discovery">Determining Availability of Additional Certificates</a></h1>
@@ -530,8 +530,8 @@ Client                                      Server
 <p id="rfc.section.2.1.p.3">Note that a client or server MAY initiate such requests without being willing to receive them; implementations which have announced support MUST properly handle receipt of frames defined in this document regardless of their peer&#8217;s announced setting.</p>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#discovery-client" id="discovery-client">Client probing for additional certificates</a></h1>
 <p id="rfc.section.2.2.p.1">As defined in <a href="#RFC7540">[RFC7540]</a>, when a client finds that a https:// origin (or Alternative Service <a href="#I-D.ietf-httpbis-alt-svc">[I-D.ietf-httpbis-alt-svc]</a>) to which it needs to make a request has the same IP address as a server to which it is already connected, it MAY check whether the TLS certificate provided contains the new origin as well, and if so, reuse the connection.</p>
-<p id="rfc.section.2.2.p.2">If not, but the server has advertised support for HTTP-layer certificates (see <a href="#setting">Section 2.1</a>, the client MAY also send a <samp>CERTIFICATE_REQUEST</samp> frame <a href="#http-cert-request">Section 3.3</a> on stream zero requesting a certificate for the desired origin. A client MAY send multiple concurrent <samp>CERTIFICATE_REQUEST</samp> frames for different origins.  The server responds to each with a series of <samp>CERTIFICATE</samp> frames containing the relevant certificate chain, if it possesses such a certificate. If not, the server responds with an empty <samp>CERTIFICATE</samp> frame.</p>
-<p id="rfc.section.2.2.p.3">In this case, or if the server has not advertised support for HTTP-layer certificates, the client MUST establish a new TCP connection to the desired origin, requesting an appropriate certificate at the TLS layer, before sending any requests for resources in that origin.</p>
+<p id="rfc.section.2.2.p.2">If the TLS certificate does not contain the new origin, but the server has advertised support for HTTP-layer certificates (see <a href="#setting">Section 2.1</a>, the client MAY also send a <samp>CERTIFICATE_REQUEST</samp> frame <a href="#http-cert-request">Section 3.3</a> on stream zero requesting a certificate for the desired origin. A client MAY send multiple concurrent <samp>CERTIFICATE_REQUEST</samp> frames for different origins. The server responds to each with a series of <samp>CERTIFICATE</samp> frames containing the relevant certificate chain, if it possesses such a certificate. If not, the server responds with an empty <samp>CERTIFICATE</samp> frame.</p>
+<p id="rfc.section.2.2.p.3">In this case, or if the server has not advertised support for HTTP-layer certificates, the client MUST NOT send any requests for resources in that origin on the current connection.</p>
 <h1 id="rfc.section.2.3"><a href="#rfc.section.2.3">2.3.</a> <a href="#server-announcement-of-additional-certificates" id="server-announcement-of-additional-certificates">Server announcement of additional certificates</a></h1>
 <p id="rfc.section.2.3.p.1">Because the approach in <a href="#discovery-client">Section 2.2</a> requires an extra round-trip to the server before the client can determine whether a new TCP connection will be required, some origins will wish to proactively alert clients to certificates they possess. Servers might also wish to proactively prove their authority for an origin for which it intends to deliver pushed resources.</p>
 <p id="rfc.section.2.3.p.2">The server MAY send an <samp>ORIGIN</samp> frame including origins which are not in its TLS certificate. This represents an explicit claim by the server to possess the appropriate certificate &#8211; a claim the client MUST verify using the procedures in <a href="#discovery-client">Section 2.2</a> before relying on the server&#8217;s authority for the claimed origin.</p>
@@ -922,27 +922,6 @@ Client                                      Server
 <div class="avoidbreak">
   <address class="vcard">
 	<span class="vcardline">
-	  <span class="fn">Martin Thomson</span> 
-	  <span class="n hidden">
-		<span class="family-name">Thomson</span>
-	  </span>
-	</span>
-	<span class="org vcardline">Mozilla</span>
-	<span class="adr">
-	  
-	  <span class="vcardline">
-		<span class="locality"></span> 
-		<span class="region"></span>
-		<span class="code"></span>
-	  </span>
-	  <span class="country-name vcardline"></span>
-	</span>
-	<span class="vcardline">EMail: <a href="mailto:martin.thomson@gmail.com">martin.thomson@gmail.com</a></span>
-
-  </address>
-</div><div class="avoidbreak">
-  <address class="vcard">
-	<span class="vcardline">
 	  <span class="fn">Mike Bishop</span> 
 	  <span class="n hidden">
 		<span class="family-name">Bishop</span>
@@ -959,6 +938,27 @@ Client                                      Server
 	  <span class="country-name vcardline"></span>
 	</span>
 	<span class="vcardline">EMail: <a href="mailto:michael.bishop@microsoft.com">michael.bishop@microsoft.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Martin Thomson</span> 
+	  <span class="n hidden">
+		<span class="family-name">Thomson</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Mozilla</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:martin.thomson@gmail.com">martin.thomson@gmail.com</a></span>
 
   </address>
 </div>

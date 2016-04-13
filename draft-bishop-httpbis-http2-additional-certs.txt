@@ -4,26 +4,36 @@
 
 HTTP                                                           M. Bishop
 Internet-Draft                                                 Microsoft
-Intended status: Standards Track                          March 15, 2016
-Expires: September 16, 2016
+Intended status: Standards Track                              M. Thomson
+Expires: October 15, 2016                                        Mozilla
+                                                          April 13, 2016
 
 
-         Secondary Server-Certificate Authentication in HTTP/2
+             Secondary Certificate Authentication in HTTP/2
            draft-bishop-httpbis-http2-additional-certs-latest
 
 Abstract
 
+   TLS provides fundamental mutual authentication services for HTTP,
+   supporting up to one server certificate and up to one client
+   certificate associated to the session to prove client and server
+   identities as necessary.  This draft provides mechanisms for
+   providing additional such certificates at the HTTP layer when these
+   constraints are not sufficient.
+
    Many HTTP servers host content from several origins.  HTTP/2
    [RFC7540] permits clients to reuse an existing HTTP connection to a
-   server provided that certain conditions are satisfied.  One of these
-   conditions is the inclusion of the secondary origin in the
-   certificate provided during the TLS [I-D.ietf-tls-tls13] handshake.
+   server provided that the secondary origin is also in the certificate
+   provided during the TLS [I-D.ietf-tls-tls13] handshake.
 
    In many cases, origins will wish to maintain separate certificates
    for different origins but still desire the benefits of a shared HTTP
-   connection.  This draft describes how frames which were defined to
-   transfer client certificates might be used to provide additional
-   server certificates as well.
+   connection.  Similarly, servers may require clients to present
+   authentication, but have different requirements based on the content
+   the client is attempting to access.
+
+   This document describes a how such certificates can be provided at
+   the HTTP layer to support both scenarios.
 
 Status of This Memo
 
@@ -40,7 +50,15 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 16, 2016.
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 1]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   This Internet-Draft will expire on October 15, 2016.
 
 Copyright Notice
 
@@ -50,14 +68,6 @@ Copyright Notice
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
    (http://trustee.ietf.org/license-info) in effect on the date of
-
-
-
-Bishop                 Expires September 16, 2016               [Page 1]
-
-Internet-Draft           HTTP/2 Additional Certs              March 2016
-
-
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
@@ -67,84 +77,396 @@ Internet-Draft           HTTP/2 Additional Certs              March 2016
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-     1.1.  Origin Discovery  . . . . . . . . . . . . . . . . . . . .   3
-       1.1.1.  Client-driven discovery . . . . . . . . . . . . . . .   3
-       1.1.2.  Server-driven discovery . . . . . . . . . . . . . . .   4
-   2.  Presenting Server Certificates at the HTTP/2 Framing Layer  .   4
-     2.1.  The CERTIFICATE_REQUEST Frame . . . . . . . . . . . . . .   4
-     2.2.  The CERTIFICATE_REQUIRED frame  . . . . . . . . . . . . .   5
-     2.3.  The CERTIFICATE frame . . . . . . . . . . . . . . . . . .   5
-     2.4.  The CERTIFICATE_PROOF Frame . . . . . . . . . . . . . . .   6
-     2.5.  The USE_CERTIFICATE Frame . . . . . . . . . . . . . . . .   6
-   3.  Indicating failures during Certificate Authentication . . . .   6
-   4.  Indicating Support for HTTP-Layer Certificate Authentication    7
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .   7
-     8.2.  Informative References  . . . . . . . . . . . . . . . . .   8
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Server Certificate Authentication . . . . . . . . . . . .   3
+     1.2.  Client Certificate Authentication . . . . . . . . . . . .   4
+       1.2.1.  HTTP/1.1 using TLS 1.2 and previous . . . . . . . . .   4
+       1.2.2.  HTTP/1.1 using TLS 1.3  . . . . . . . . . . . . . . .   5
+       1.2.3.  HTTP/2  . . . . . . . . . . . . . . . . . . . . . . .   6
+     1.3.  HTTP-Layer Certificate Authentication . . . . . . . . . .   6
+       1.3.1.  Server authentication . . . . . . . . . . . . . . . .   7
+       1.3.2.  Client authentication . . . . . . . . . . . . . . . .   8
+     1.4.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   8
+   2.  Determining Availability of Additional Certificates . . . . .   8
+     2.1.  Indicating support for HTTP-layer certificate
+           authentication  . . . . . . . . . . . . . . . . . . . . .   8
+     2.2.  Client probing for additional certificates  . . . . . . .   9
+     2.3.  Server announcement of additional certificates  . . . . .   9
+   3.  Presenting Certificates at the HTTP/2 Framing Layer . . . . .  10
+     3.1.  The CERTIFICATE_REQUIRED frame  . . . . . . . . . . . . .  10
+     3.2.  The USE_CERTIFICATE Frame . . . . . . . . . . . . . . . .  11
+     3.3.  The CERTIFICATE_REQUEST Frame . . . . . . . . . . . . . .  12
+     3.4.  The CERTIFICATE frame . . . . . . . . . . . . . . . . . .  14
+     3.5.  The CERTIFICATE_PROOF Frame . . . . . . . . . . . . . . .  15
+   4.  Indicating failures during HTTP-Layer Certificate
+       Authentication  . . . . . . . . . . . . . . . . . . . . . . .  16
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .  17
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  19
+     6.1.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting  . . . . . . . . .  19
+     6.2.  New HTTP/2 Frames . . . . . . . . . . . . . . . . . . . .  19
+       6.2.1.  CERTIFICATE_REQUIRED  . . . . . . . . . . . . . . . .  19
+       6.2.2.  CERTIFICATE_REQUEST . . . . . . . . . . . . . . . . .  19
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 2]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+       6.2.3.  CERTIFICATE . . . . . . . . . . . . . . . . . . . . .  20
+       6.2.4.  CERTIFICATE_PROOF . . . . . . . . . . . . . . . . . .  20
+       6.2.5.  USE_CERTIFICATE . . . . . . . . . . . . . . . . . . .  20
+     6.3.  New HTTP/2 Error Codes  . . . . . . . . . . . . . . . . .  20
+       6.3.1.  BAD_CERTIFICATE . . . . . . . . . . . . . . . . . . .  20
+       6.3.2.  UNSUPPORTED_CERTIFICATE . . . . . . . . . . . . . . .  20
+       6.3.3.  CERTIFICATE_REVOKED . . . . . . . . . . . . . . . . .  21
+       6.3.4.  CERTIFICATE_EXPIRED . . . . . . . . . . . . . . . . .  21
+       6.3.5.  BAD_SIGNATURE . . . . . . . . . . . . . . . . . . . .  21
+       6.3.6.  CERTIFICATE_GENERAL . . . . . . . . . . . . . . . . .  21
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  21
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  21
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  21
+     8.2.  Informative References  . . . . . . . . . . . . . . . . .  23
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  23
 
 1.  Introduction
 
-   Section 9.1.1 of [RFC7540] describes how connections may be reused as
-   long as the server is authoritative for both origins.  A server is
-   considered authoritative for both origins if DNS resolves both
-   origins to the IP address of the server and (for TLS) if the
-   certificate presented by the server contains both origins, either as
-   the Subject or contained in the Subject Alternative Names field.
+   HTTP clients need to know that the content they receive on a
+   connection comes from the origin that they intended to retrieve in
+   from.  The traditional form of server authentication in HTTP has been
+   in the form of X.509 certificates provided during the TLS RFC5246
+   [I-D.ietf-tls-tls13] handshake.
+
+   Many existing HTTP [RFC7230] servers also have authentication
+   requirements for the resources they serve.  Of the bountiful
+   authentication options available for authenticating HTTP requests,
+   client certificates present a unique challenge for resource-specific
+   authentication requirements because of the interaction with the
+   underlying TLS layer.
+
+   TLS 1.2 [RFC5246] supports one server and one client certificate on a
+   connection.  These certificates may contain multiple identities, but
+   only one certificate may be provided.
+
+1.1.  Server Certificate Authentication
+
+   Section 9.1.1 of [RFC7540] describes how connections may be used to
+   make requests from multiple origins as long as the server is
+   authoritative for both.  A server is considered authoritative for an
+   origin if DNS resolves the origin to the IP address of the server and
+   (for TLS) if the certificate presented by the server contains the
+   origin in the Subject Alternative Names field.
 
    [I-D.ietf-httpbis-alt-svc] enables a step of abstraction from the DNS
    resolution.  If both hosts have provided an Alternative Service at
    hostnames which resolve to the IP address of the server, they are
    considered authoritative just as if DNS resolved the origin itself to
-   that address.
-
-   The ORIGIN extension frame, defined in
-   [I-D.nottingham-httpbis-origin-frame], provides a negative coalescing
-   feature - a way for a server to request that a client _not_ reuse a
-   connection for an origin, even when it might otherwise appear to be
 
 
 
-Bishop                 Expires September 16, 2016               [Page 2]
+Bishop & Thomson        Expires October 15, 2016                [Page 3]
 
-Internet-Draft           HTTP/2 Additional Certs              March 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
 
 
-   supported.  However, the ORIGIN frame does not currently permit a
-   server to advertise the availability of origins which do not appear
-   in the server's certificate as presented in the TLS handshake.
+   that address.  However, the server's one TLS certificate is still
+   required to contain the name of each origin in question.
 
    Servers which host many origins often would prefer to have separate
    certificates for some sets of origins.  This may be for ease of
    certificate management (the ability to separately revoke or renew
-   them), for legal reasons (a CDN acting on behalf of multiple
-   origins), or any other factor which might drive this administrative
-   decision.  Clients connecting to such origins cannot currently reuse
-   connections, even if both client and server would be willing to do
-   so.
+   them), due to different sources of certificates (a CDN acting on
+   behalf of multiple origins), or other factors which might drive this
+   administrative decision.  Clients connecting to such origins cannot
+   currently reuse connections, even if both client and server would
+   prefer to do so.
 
-   [I-D.thomson-http2-client-certs] defines certificate-related HTTP/2
-   frames, permitting a sender to offer a certificate chain along with
-   proof that it possesses the corresponding private key to the end
-   certificate.  These frames are bound to the underlying TLS session,
-   so that the certificates are as reliable as those provided at the TLS
-   layer.
+1.2.  Client Certificate Authentication
 
-   In this document, a mechanism for using these frames for secondary
-   server authentication via HTTP/2 frames is defined.  This mechanism
-   can be implemented at the HTTP layer without requiring new TLS stack
-   behavior and without breaking the existing interface between HTTP and
-   applications above it.  It primarily relaxes the one-way nature of
-   the frames defined in [I-D.thomson-http2-client-certs], defining the
-   processing of these frames in the reverse direction.
+   For servers that wish to use client certificates to authenticate
+   users, they might request client authentication during or immediately
+   after the TLS handshake.  However, if not all users or resources need
+   certificate-based authentication, a request for a certificate has the
+   unfortunate consequence of triggering the client to seek a
+   certificate, possibly requiring user interaction, network traffic, or
+   other time-consuming activities.  During this time, the connection is
+   stalled in many implementations.  Such a request can result in a poor
+   experience, particularly when sent to a client that does not expect
+   the request.
 
-1.1.  Origin Discovery
+   The TLS 1.3 CertificateRequest can be used by servers to give clients
+   hints about which certificate to offer.  Servers that rely on
+   certificate-based authentication might request different certificates
+   for different resources.  Such a server cannot use contextual
+   information about the resource to construct an appropriate TLS
+   CertificateRequest message during the initial handshake.
 
-1.1.1.  Client-driven discovery
+   Consequently, client certificates are requested at connection
+   establishment time only in cases where all clients are expected or
+   required to have a single certificate that is used for all resources.
+   Many other uses for client certificates are reactive, that is,
+   certificates are requested in response to the client making a
+   request.
+
+1.2.1.  HTTP/1.1 using TLS 1.2 and previous
+
+   In HTTP/1.1, a server that relies on client authentication for a
+   subset of users or resources does not request a certificate when the
+   connection is established.  Instead, it only requests a client
+   certificate when a request is made to a resource that requires a
+   certificate.  TLS 1.2 [RFC5246] accomodates this by permitting the
+   server to request a new TLS handshake, in which the server will
+   request the client's certificate.
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 4]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   Figure 1 shows the server initiating a TLS-layer renegotiation in
+   response to receiving an HTTP/1.1 request to a protected resource.
+
+   Client                                      Server
+      -- (HTTP) GET /protected -------------------> *1
+      <---------------------- (TLS) HelloRequest -- *2
+      -- (TLS) ClientHello ----------------------->
+      <------------------ (TLS) ServerHello, ... --
+      <---------------- (TLS) CertificateRequest -- *3
+      -- (TLS) ..., Certificate ------------------> *4
+      -- (TLS) Finished -------------------------->
+      <-------------------------- (TLS) Finished --
+      <--------------------------- (HTTP) 200 OK -- *5
+
+    Figure 1: HTTP/1.1 Reactive Certificate Authentication with TLS 1.2
+
+   In this example, the server receives a request for a protected
+   resource (at *1 on Figure 1).  Upon performing an authorization
+   check, the server determines that the request requires authentication
+   using a client certificate and that no such certificate has been
+   provided.
+
+   The server initiates TLS renegotiation by sending a TLS HelloRequest
+   (at *2).  The client then initiates a TLS handshake.  Note that some
+   TLS messages are elided from the figure for the sake of brevity.
+
+   The critical messages for this example are the server requesting a
+   certificate with a TLS CertificateRequest (*3); this request might
+   use information about the request or resource.  The client then
+   provides a certificate and proof of possession of the private key in
+   Certificate and CertificateVerify messages (*4).
+
+   When the handshake completes, the server performs any authorization
+   checks a second time.  With the client certificate available, it then
+   authorizes the request and provides a response (*5).
+
+1.2.2.  HTTP/1.1 using TLS 1.3
+
+   TLS 1.3 [I-D.ietf-tls-tls13] introduces a new client authentication
+   mechanism that allows for clients to authenticate after the handshake
+   has been completed.  For the purposes of authenticating an HTTP
+   request, this is functionally equivalent to renegotiation.  Figure 2
+   shows the simpler exchange this enables.
+
+
+
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 5]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   Client                                      Server
+      -- (HTTP) GET /protected ------------------->
+      <---------------- (TLS) CertificateRequest --
+      -- (TLS) Certificate, CertificateVerify ---->
+      <--------------------------- (HTTP) 200 OK --
+
+    Figure 2: HTTP/1.1 Reactive Certificate Authentication with TLS 1.3
+
+   TLS 1.3 does not support renegotiation, instead supporting direct
+   client authentication.  In contrast to the TLS 1.2 example, in TLS
+   1.3, a server can simply request a certificate.
+
+1.2.3.  HTTP/2
+
+   An important part of the HTTP/1.1 exchange is that the client is able
+   to easily identify the request that caused the TLS renegotiation.
+   The client is able to assume that the next unanswered request on the
+   connection is responsible.  The HTTP stack in the client is then able
+   to direct the certificate request to the application or component
+   that initiated that request.  This ensures that the application has
+   the right contextual information for processing the request.
+
+   In HTTP/2, a client can have multiple outstanding requests.  Without
+   some sort of correlation information, a client is unable to identify
+   which request caused the server to request a certificate.
+
+   Thus, the minimum necessary mechanism to support reactive certificate
+   authentication in HTTP/2 is an identifier that can be use to
+   correlate an HTTP request with a request for a certificate.
+
+   [RFC7540] prohibits renegotiation after any application data has been
+   sent.  This completely blocks reactive certificate authentication in
+   HTTP/2 using TLS 1.2.  If this restriction were relaxed by an
+   extension or update to HTTP/2, such an identifier could be added to
+   TLS 1.2 by means of an extension to TLS.  Unfortunately, many TLS 1.2
+   implementations do not permit application data to continue during a
+   renegotiation.  This is problematic for a multiplexed protocol like
+   HTTP/2.
+
+1.3.  HTTP-Layer Certificate Authentication
+
+   This draft proposes bringing the TLS 1.3 CertificateRequest,
+   Certificate, and CertificateVerify messages into HTTP/2 frames,
+   making client certificate authentication TLS-version-agnostic.
+
+   These frames can be used to provide both server and client
+   authentication using certificates.  This mechanism can be implemented
+   at the HTTP layer without requiring new TLS stack behavior and
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 6]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   without breaking the existing interface between HTTP and applications
+   above it.
+
+   This could be done in a naive manner by replicating the messages as
+   HTTP/2 frames on each stream.  However, this would create needless
+   redundancy between streams and require frequent expensive signing
+   operations.  Instead, this draft lifts the bulky portions of each
+   message into frames on stream zero and permits the on-stream frames
+   to incorporate them by reference as needed.
+
+   Section 2 describes how clients and servers can detect support for
+   this feature in peers and situations which call for it.  Section 3
+   describes how certificates can be requested and presented at the
+   HTTP/2 framing layer using several new frame types which parallel the
+   TLS 1.3 message exchange, using the flows described in Section 1.3.1
+   and Section 1.3.2.  Finally, Section 4 defines new error types which
+   can be used to notify peers when the exchange has not been
+   successful.
+
+1.3.1.  Server authentication
+
+   When a client discovers that a server has additional certificates
+   (for example, via an ORIGIN frame; see Section 2) and wishes to
+   examine them, it does this by sending at least one
+   "CERTIFICATE_REQUEST" frame (see Section 3.3) on stream zero.
+
+   Servers respond to certificate authentication requests by sending one
+   or more "CERTIFICATE" frames (see Section 3.4) followed by a
+   "CERTIFICATE_PROOF" frame (see Section 3.5), on stream zero.
+
+   The exchange then looks like this:
+
+   Client                                      Server
+      <----------------------- (stream 0) ORIGIN --
+      -- (stream 0) CERTIFICATE_REQUEST ---------->
+      <--<--<------------ (stream 0) CERTIFICATE --
+      <------------ (stream 0) CERTIFICATE_PROOF --
+      -- (streams 1,3) GET /from-new-origin ------>
+      <-------------------- (streams 1,3) 200 OK --
+
+
+             Figure 3: HTTP/2 Secondary Server Authentication
+
+   If server-initiated streams are blocked waiting on the client's
+   request for additional certificates, the client might also employ
+   "CERTIFICATE_REQUIRED" frames (see Section 3.1) to inform the server
+   of this, but this is not required.
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 7]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+1.3.2.  Client authentication
+
+   On each stream where certificate authentication is required, the
+   server sends a "CERTIFICATE_REQUIRED" frame, which the client answers
+   with a "USE_CERTIFICATE" frame either indicating the certificate to
+   use, or indicating that no certificate should be used.  These frames
+   are simple, referencing information previously sent on stream zero to
+   reduce redundancy.
+
+   "CERTIFICATE_REQUIRED" frames reference a "CERTIFICATE_REQUEST" on
+   stream zero, analogous to the CertificateRequest message.
+   "USE_CERTIFICATE" frames reference a sequence of "CERTIFICATE" and
+   "CERTIFICATE_PROOF" frames on stream zero, analogous to the the
+   Certificate and CertificateVerify messages.
+
+   The exchange then looks like this:
+
+   Client                                      Server
+      -- (streams 1,3) GET /protected ------------>
+      <---------- (stream 0) CERTIFICATE_REQUEST --
+      <------ (streams 1,3) CERTIFICATE_REQUIRED --
+      -- (stream 0) CERTIFICATE ------------>-->-->
+      -- (stream 0) CERTIFICATE_PROOF ------------>
+      -- (streams 1,3) USE_CERTIFICATE ----------->
+      <-------------------- (streams 1,3) 200 OK --
+
+
+           Figure 4: HTTP/2 Reactive Certificate Authentication
+
+   To avoid the extra round-trip per stream required for a challenge and
+   response, the "AUTOMATIC_USE" flag enables a certificate to be
+   automatically used by the recipient on subsequent requests without
+   sending a "CERTIFICATE_REQUIRED" exchange.  This flag is always set
+   by servers, but optional for clients.
+
+1.4.  Terminology
+
+   RFC 2119 [RFC2119] defines the terms "MUST", "MUST NOT", "SHOULD" and
+   "MAY".
+
+2.  Determining Availability of Additional Certificates
+
+2.1.  Indicating support for HTTP-layer certificate authentication
+
+   Clients and servers that will accept requests for HTTP-layer
+   certificate authentication indicate this using the HTTP/2
+   "SETTINGS_HTTP_CERT_AUTH" (0xSETTING-TBD) setting.
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 8]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   The initial value for the "SETTINGS_HTTP_CERT_AUTH" setting is 0,
+   indicating that the neither peer supports HTTP-layer authentication.
+   A client sets the "SETTINGS_HTTP_CERT_AUTH" setting to a value of 1
+   to indicate support for HTTP-layer certificate authentication as
+   defined in this document.  A server sets the
+   "SETTINGS_HTTP_CERT_AUTH" setting to a value of 1 to indicate the
+   ability to provide additional certificates as defined in this
+   document.  Any value other than 0 or 1 MUST be treated as a
+   connection error (Section 5.4.1 of [RFC7540]) of type
+   "PROTOCOL_ERROR".
+
+   Note that a client or server MAY initiate such requests without being
+   willing to receive them; implementations which have announced support
+   MUST properly handle receipt of frames defined in this document
+   regardless of their peer's announced setting.
+
+2.2.  Client probing for additional certificates
 
    As defined in [RFC7540], when a client finds that a https:// origin
    (or Alternative Service [I-D.ietf-httpbis-alt-svc]) to which it needs
@@ -152,213 +474,469 @@ Internet-Draft           HTTP/2 Additional Certs              March 2016
    already connected, it MAY check whether the TLS certificate provided
    contains the new origin as well, and if so, reuse the connection.
 
-   If not, but the server has advertised support for HTTP-layer
-   certificates, the client MAY also send a "CERTIFICATE_REQUEST" frame
-   Section 2.1 on stream zero requesting a certificate for the desired
-   origin.  The server responds with a series of "CERTIFICATE" frames
-   containing the relevant certificate chain, if it possesses such a
-   certificate.  If not, the server responds with an empty "CERTIFICATE"
-   frame.
+   If the TLS certificate does not contain the new origin, but the
+   server has advertised support for HTTP-layer certificates (see
+   Section 2.1, the client MAY also send a "CERTIFICATE_REQUEST" frame
+   Section 3.3 on stream zero requesting a certificate for the desired
+   origin.  A client MAY send multiple concurrent "CERTIFICATE_REQUEST"
+   frames for different origins.  The server responds to each with a
+   series of "CERTIFICATE" frames containing the relevant certificate
+   chain, if it possesses such a certificate.  If not, the server
+   responds with an empty "CERTIFICATE" frame.
 
+   In this case, or if the server has not advertised support for HTTP-
+   layer certificates, the client MUST NOT send any requests for
+   resources in that origin on the current connection.
 
+2.3.  Server announcement of additional certificates
 
-
-
-
-Bishop                 Expires September 16, 2016               [Page 3]
-
-Internet-Draft           HTTP/2 Additional Certs              March 2016
-
-
-1.1.2.  Server-driven discovery
-
-   Because the approach in Section 1.1.1 requires an extra round-trip to
+   Because the approach in Section 2.2 requires an extra round-trip to
    the server before the client can determine whether a new TCP
    connection will be required, some origins will wish to proactively
    alert clients to certificates they possess.  Servers might also wish
    to proactively prove their authority for an origin for which it
    intends to deliver pushed resources.
 
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016                [Page 9]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
    The server MAY send an "ORIGIN" frame including origins which are not
    in its TLS certificate.  This represents an explicit claim by the
    server to possess the appropriate certificate - a claim the client
-   MUST verify using the procedures in Section 1.1.1 before relying on
-   the server's authority for the claimed origin.
+   MUST verify using the procedures in Section 2.2 before relying on the
+   server's authority for the claimed origin.
 
-   The server might push resources from an origin for which it is
-   authoritative but for which the client has not received the
-   certificate.  In this case, the client SHOULD verify the server's
-   possession of an appropriate certificate by sending a
-   "CERTIFICATE_REQUIRED" frame on the pushed stream and a
-   "CERTIFICATE_REQUEST" on stream zero.  The client MUST NOT use the
+   The server MAY push resources from an origin for which it is
+   authoritative but for which the client has not yet received the
+   certificate.  In this case, the client MUST verify the server's
+   possession of an appropriate certificate a "CERTIFICATE_REQUEST" on
+   stream zero.  The client SHOULD also send a "CERTIFICATE_REQUIRED"
+   frame on the pushed stream to inform the server that progress is
+   blocked until the request is satisfied.  The client MUST NOT use the
    pushed resource until an appropriate certificate has been received
    and validated.
 
-2.  Presenting Server Certificates at the HTTP/2 Framing Layer
+3.  Presenting Certificates at the HTTP/2 Framing Layer
 
-   {#certs-http2}
+   When either peer wishes to obtain a certificate before making or
+   completing a request, it does this by sending at least one
+   "CERTIFICATE_REQUEST" frame (see Section 3.3) on stream zero and
+   sending a "CERTIFICATE_REQUIRED" frame (see Section 3.1) on any
+   affected streams which are not in the "idle" state.  The
+   "CERTIFICATE_REQUEST" and "CERTIFICATE_REQUIRED" frames are
+   correlated by their "Request-ID" field.  Subsequent
+   "CERTIFICATE_REQUIRED" frames with the same Request-ID MAY be sent on
+   other streams where the sender is expecting a certificate with the
+   same parameters.
 
-   When a client wishes to obtain additional certificates from a server
-   that has signaled support for HTTP certificate authentication (see
-   Section 4), it does this by sending at least one
-   "CERTIFICATE_REQUEST" frame (see Section 2.1) on stream zero.  A
-   client MAY send multiple concurrent "CERTIFICATE_REQUEST" frames.  If
-   server-initiated streams are blocked until the "CERTIFICATE_REQUEST"
-   has been answered, the client SHOULD send "CERTIFICATE_REQUIRED"
-   frames on those streams to inform the server.
+   The recipient responds to these requests by sending one or more
+   "CERTIFICATE" frames (see Section 3.4), followed by a
+   "CERTIFICATE_PROOF" frame (see Section 3.5), on stream zero
+   containing the "Request-ID" to which they are responding.  The
+   "USE_CERTIFICATE" (see Section 3.2) frame is sent on-stream to notify
+   the requestor that the stream is ready to be processed.
 
-   Servers respond to certificate authentication requests by sending one
-   or more "CERTIFICATE" frames (see Section 2.3) followed by a
-   "CERTIFICATE_PROOF" frame, on stream zero.
+   To reduce round-trips, the holder of a certificate MAY set the
+   "AUTOMATIC_USE" flag on a "CERTIFICATE_PROOF" frame, indicating that
+   the peer SHOULD automatically apply the supplied certificate to any
+   future streams matching that request, rather than sending a
+   "CERTIFICATE_REQUIRED" frame.  Servers MUST set the "AUTOMATIC_USE"
+   flag on all "CERTIFICATE_PROOF" frames.
 
-2.1.  The CERTIFICATE_REQUEST Frame
+3.1.  The CERTIFICATE_REQUIRED frame
 
-   When the server has advertised support for HTTP certificate
-   authentication (see Section 4), clients MAY send the
-   "CERTIFICATE_REQUEST" frame.  A server that has advertised support
-   MUST NOT treat receipt of such a frame as a session error of type
-   "PROTOCOL_ERROR".
-
+   The "CERTIFICATE_REQUIRED" frame (0xFRAME-TBD2) is sent to indicate
+   that processing of an HTTP request is blocked pending certificate
+   authentication.  The frame includes a request identifier which can be
 
 
-Bishop                 Expires September 16, 2016               [Page 4]
+
+Bishop & Thomson        Expires October 15, 2016               [Page 10]
 
-Internet-Draft           HTTP/2 Additional Certs              March 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
 
+
+   used to correlate the stream with a previous "CERTIFICATE_REQUEST"
+   frame sent on stream zero.  The "CERTIFICATE_REQUEST" describes the
+   certificate the sender requires before continuing to process the
+   stream in question.
+
+   The "CERTIFICATE_REQUIRED" frame contains 1 octet, which is the
+   authentication request identifier.  A peer that receives a
+   "CERTIFICATE_REQUIRED" of any other length MUST treat this as a
+   stream error of type "PROTOCOL_ERROR".  Frames with identical request
+   identifiers refer to the same "CERTIFICATE_REQUEST".
+
+   A server MAY send multiple concurrent "CERTIFICATE_REQUIRED" frames
+   on the same stream.  If a server requires that a client provide
+   multiple certificates before authorizing a single request, it MUST
+   send a "CERTIFICATE_REQUIRED" frame with a different request
+   identifier and a corresponding "CERTIFICATE_REQUEST" frame describing
+   each required certificate.  Clients MUST NOT send multiple
+   "CERTIFICATE_REQUIRED" frames on the same server-initiated stream.
+
+   The "CERTIFICATE_REQUIRED" frame MUST NOT be sent on stream zero, a
+   stream initiated by the sender, or a stream in the idle state.  The
+   "CERTIFICATE_REQUIRED" frame SHOULD NOT be sent to a peer which has
+   not advertised support for HTTP-layer certificate authentication.
+
+   A client that receives a "CERTIFICATE_REQUIRED" frame on a stream
+   which is not in a valid state SHOULD treat this as a stream error of
+   type "PROTOCOL_ERROR".
+
+3.2.  The USE_CERTIFICATE Frame
+
+   The "USE_CERTIFICATE" frame (0xFRAME-TBD5) is sent in response to a
+   "CERTIFICATE_REQUIRED" frame to indicate that the requested
+   certificate has been provided (or will not be).
+
+   A "USE_CERTIFICATE" frame with no payload expresses the sender's
+   refusal to use the associated certificate (if any) with this stream.
+   If the certificate request was originally issued for a different
+   stream, recipients MAY create a new "CERTIFICATE_REQUEST" and permit
+   the sender to offer a different certificate.  Alternatively,
+   recipients MAY process the affected streams as unauthenticated,
+   likely returning an authentication-related error at the HTTP level
+   (e.g. 403) for servers or discarding a pushed resource for clients.
+
+   Otherwise, the "USE_CERTIFICATE" frame contains the "Request-ID" of
+   the now-completed certificate request.  This MUST be an ID previously
+   issued by the recipient, and for which a matching certificate has
+   previously been presented along with a supporting certificate chain
+   in one or more "CERTIFICATE" frames, and for which proof of
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 11]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   possession has been presented in a "CERTIFICATE_PROOF" frame.
+   Recipients of a "USE_CERTIFICATE" of any other length MUST treat this
+   as a stream error of type "PROTOCOL_ERROR".  Frames with identical
+   request identifiers refer to the same certificate chain.
+
+   The "USE_CERTIFICATE" frame MUST NOT be sent on stream zero, a stream
+   initiated by the sender, or a stream on which a
+   "CERTIFICATE_REQUIRED" frame has not been received.  Receipt of a
+   "USE_CERTIFICATE" frame in these circmustances SHOULD be treated as a
+   stream error of type "PROTOCOL_ERROR".
+
+3.3.  The CERTIFICATE_REQUEST Frame
+
+   TLS 1.3 defines the "CertificateRequest" message, which prompts the
+   client to provide a certificate which conforms to certain properties
+   specified by the server.  This draft defines the
+   "CERTIFICATE_REQUEST" frame (0xFRAME-TBD1), which contains the same
+   contents as a TLS 1.3 "CertificateRequest" message, but can be sent
+   over any TLS version.
+
+   The "CERTIFICATE_REQUEST" frame SHOULD NOT be sent to a peer which
+   has not advertised support for HTTP-layer certificate authentication.
 
    The "CERTIFICATE_REQUEST" frame MUST be sent on stream zero.  A
    "CERTIFICATE_REQUEST" frame received on any other stream MUST be
    rejected with a stream error of type "PROTOCOL_ERROR".
 
-   When sent from client to server, the "CERTIFICATE_REQUEST" frame has
-   the same layout, with one change to the field definitions.  The "CA-
-   Count" and "Certificate-Authorities" fields are replaced by "Origin-
-   Count" and "Origins" fields, with the same length and format.
-   "Origins" is the distinguished name of the origin for which the
-   client wishes to obtain a certificate, represented in DER-encoded
-   [X690] format.  The number of such structures is given by the 16-bit
-   "Origin-Count" field, which MUST be one (0x01).
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-------------------------------+-------------------------------+
+    | Request-ID (8)|     Algorithm-Count (16)      | Algorithms  ...
+    +---------------------------------------------------------------+
+    |       CA-Count (16)           |  Certificate-Authorities(?) ...
+    +---------------------------------------------------------------+
+    |   Cert-Extension-Count (16)   |       Cert-Extensions(?)    ...
+    +---------------------------------------------------------------+
 
-2.2.  The CERTIFICATE_REQUIRED frame
+                Figure 5: CERTIFICATE_REQUEST frame payload
 
-   The "CERTIFICATE_REQUIRED" frame is sent by clients to indicate that
-   processing of a server-initiated stream (for example, a pushed
-   resource) is blocked pending certificate authentication.  The frame
-   includes a request identifier which can be used to correlate the
-   stream with a "CERTIFICATE_REQUEST" frame received on stream zero.
-   The layout and fields are unmodified from
-   [I-D.thomson-http2-client-certs].
+   The frame contains the following fields:
 
-   When the server has advertised support for HTTP certificate
-   authentication (see Section 4), clients MAY send the
-   "CERTIFICATE_REQUIRED" frame.  A server that has advertised support
-   MUST NOT treat receipt of such a frame as a stream error of type
-   "PROTOCOL_ERROR".
+   Request-ID:  "Request-ID" is an 8-bit opaque identifier used to
+      correlate subsequent certificate-related frames with this request.
+      The identifier MUST be unique in the session for the sender.
 
-   The client MUST NOT send a "CERTIFICATE_REQUIRED" frame on stream
-   zero or a client-initiated stream.  A server that receives a
-   "CERTIFICATE_REQUIRED" frame on an inappropriate stream SHOULD treat
-   this as a connection error of type "PROTOCOL_ERROR".
-
-2.3.  The CERTIFICATE frame
-
-   The "CERTIFICATE" frame allows the sender to present a certificate
-   which should be used as authentication for previous or subsequent
-   requests.
-
-   The payload of a "CERTIFICATE" frame contains elements of a
-   certificate chain, terminating in an end certificate.  The layout,
-   fields, and processing are unmodified from
-   [I-D.thomson-http2-client-certs].
+   Algorithm-Count and Algorithms:  A list of the hash/signature
+      algorithm pairs that the sender is able to verify, listed in
+      descending order of preference.  Any certificates provided by the
 
 
 
-
-
-
-
-Bishop                 Expires September 16, 2016               [Page 5]
+Bishop & Thomson        Expires October 15, 2016               [Page 12]
 
-Internet-Draft           HTTP/2 Additional Certs              March 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
 
 
-2.4.  The CERTIFICATE_PROOF Frame
+      recipient MUST be signed using a hash/signature algorithm pair
+      found in "Algorithms".  Each algorithm pair is encoded as a
+      "SignatureAndHashAlgorithm" (see [I-D.ietf-tls-tls13] section
+      6.3.2.1), and the number of such structures is given by the 16-bit
+      "Algorithm-Count" field, which MUST NOT be zero.
 
-   The "CERTIFICATE_PROOF" frame allows the sender to prove possession
-   of a certificate which should be used as authentication for previous
-   or subsequent requests.  The payload of a "CERTIFICATE_PROOF" frame
-   contains proof of possession of the private key corresponding to an
-   end certificate previously presented in a series of "CERTIFICATE"
-   frames.  The layout, fields, and processing are unmodified from
-   [I-D.thomson-http2-client-certs].
+   CA-Count and Certificate-Authorities:  "Certificate-Authorities" is a
+      series of distinguished names of acceptable certificate
+      authorities, represented in DER-encoded [X690] format.  These
+      distinguished names may specify a desired distinguished name for a
+      root CA or for a subordinate CA; thus, this message can be used to
+      describe known roots as well as a desired authorization space.
+      The number of such structures is given by the 16-bit "CA-Count"
+      field, which MAY be zero.  If the "CA-Count" field is zero, then
+      the recipient MAY send any certificate that meets the rest of the
+      selection criteria in the "CERTIFICATE_REQUEST", unless there is
+      some external arrangement to the contrary.
 
-   Servers MUST set the "AUTOMATIC_USE" flag when sending a
+   Cert-Extension-Count and Cert-Extensions:  A list of certificate
+      extension OIDs [RFC5280] with their allowed values, represented in
+      a series of "CertificateExtension" structures (see
+      [I-D.ietf-tls-tls13] section 6.3.5).  The list of OIDs MUST be
+      used in certificate selection as described in
+      [I-D.ietf-tls-tls13].  The number of Cert-Extension structures is
+      given by the 16-bit "Cert-Extension-Count" field, which MAY be
+      zero.
+
+   Servers MUST be able to recognize the "subjectAltName" extension
+   ([RFC2459] section 4.2.1.7) at a minimum.  Clients MUST always
+   specify the desired origin using this extension, though other
+   extensions MAY also be included.
+
+   Some certificate extension OIDs allow multiple values (e.g.  Extended
+   Key Usage).  If the sender has included a non-empty Cert-Extensions
+   list, the certificate MUST contain all of the specified extension
+   OIDs that the recipient recognizes.  For each extension OID
+   recognized by the recipient, all of the specified values MUST be
+   present in the certificate (but the certificate MAY have other values
+   as well).  However, the recipient MUST ignore and skip any
+   unrecognized certificate extension OIDs.
+
+   PKIX RFCs define a variety of certificate extension OIDs and their
+   corresponding value types.  Depending on the type, matching
+   certificate extension values are not necessarily bitwise-equal.  It
+   is expected that implementations will rely on their PKI libraries to
+   perform certificate selection using these certificate extension OIDs.
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 13]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+3.4.  The CERTIFICATE frame
+
+   A certificate chain is transferred as a series of "CERTIFICATE"
+   frames (0xFRAME-TBD3) with the same Request-ID, each containing a
+   single certificate in the chain.  The end certificate of the chain
+   can be used as authentication for previous or subsequent requests.
+
+   The "CERTIFICATE" frame defines no flags.
+
+   While unlikely, it is possible that an exceptionally large
+   certificate might be too large to fit in a single HTTP/2 frame (see
+   [RFC7540] section 4.2).  Senders unable to transfer a requested
+   certificate due to the recipient's "SETTINGS_MAX_FRAME_SIZE" value
+   SHOULD terminate affected streams with "CERTIFICATE_TOO_LARGE".
+
+   The "CERTIFICATE" frame MUST be sent on stream zero.  A "CERTIFICATE"
+   frame received on any other stream MUST be rejected with a stream
+   error of type "PROTOCOL_ERROR".
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-------------------------------+-------------------------------+
+    | Request-ID (8)|                Certificate (*)              ...
+    +---------------------------------------------------------------+
+
+
+                    Figure 6: CERTIFICATE frame payload
+
+   The fields defined by the "CERTIFICATE" frame are:
+
+   Request-ID:  The ID of the "CERTIFICATE_REQUEST" to which this frame
+      responds.
+
+   Certificate:  An X.509v3 [RFC5280] certificate in the sender's
+      certificate chain.
+
+   The first or only "CERTIFICATE" frame with a given Request-ID MUST
+   contain the sender's certificate.  Each subsequent certificate SHOULD
+   directly certify the certificate immediately preceding it.  A
+   certificate which specifies a trust anchor MAY be omitted, provided
+   that the recipient is known to already possess the relevant
+   certificate.  (For example, because it was included in a
+   "CERTIFICATE_REQUEST"'s Certificate-Authorities list.)
+
+   The "Request-ID" field MUST contain the same value as the
+   corresponding "CERTIFICATE_REQUEST" frame, and the provided
+   certificate chain MUST conform to the requirements expressed in the
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 14]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   "CERTIFICATE_REQUEST" to the best of the sender's ability.
+   Specifically:
+
+   o  If the "CERTIFICATE_REQUEST" contained a non-empty "Certificate-
+      Authorities" element, one of the certificates in the chain SHOULD
+      be signed by one of the listed CAs.
+
+   o  If the "CERTIFICATE_REQUEST" contained a non-empty "Cert-
+      Extensions" element, the first certificate MUST match with regard
+      to the extension OIDs recognized by the sender.
+
+   o  Each certificate that is not self-signed MUST be signed using a
+      hash/signature algorithm listed in the "Algorithms" element.
+
+   If these requirements are not satisfied, the recipient MAY at its
+   discretion either process the request without considering the
+   certificate chain, or respond with a stream error [RFC7540] on any
+   stream where the certificate is used.  Section 4 defines certificate-
+   related error codes which might be applicable.
+
+   The recipient of a "CERTIFICATE_REQUEST" cannot respond with
+   different certificates for use on different streams.  A client that
+   has already sent and proven a certificate, but does not wish to use
+   it on a particular stream SHOULD send an empty "USE_CERTIFICATE"
+   frame, refusing to use that certificate on that stream.  A server
+   MUST NOT send certificates for origins which it is not prepared to
+   service on the current connection.
+
+3.5.  The CERTIFICATE_PROOF Frame
+
+   The "CERTIFICATE_PROOF" frame proves possession of the private key
+   corresponding to an end certificate previously shown in a
+   "CERTIFICATE" frame.
+
+   The "CERTIFICATE_PROOF" frame defines one flag:
+
+   AUTOMATIC_USE (0x01):  Indicates that the certificate can be used
+      automatically on future requests.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-------------------------------+-------------------------------+
+    | Request-ID (8)|         Algorithm (16)        | Signature(*)...
+    +---------------------------------------------------------------+
+
+
+                 Figure 7: CERTIFICATE_PROOF frame payload
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 15]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   The "CERTIFICATE_PROOF" frame (0xFRAME-TBD4) contains an "Algorithm"
+   field (a "SignatureAndHashAlgorithm", from [I-D.ietf-tls-tls13]
+   section 6.3.2.1), describing the hash/signature algorithm pair being
+   used.  The signature is performed as described in
+   [I-D.ietf-tls-tls13], with the following values being used:
+
+   o  The context string for the signature is "HTTP/2 CERTIFICATE_PROOF"
+
+   o  The "specified content" is an [RFC5705] exported value, with the
+      following parameters:
+
+      *  Disambiguating label string: "EXPORTER HTTP/2
+         CERTIFICATE_PROOF"
+
+      *  Length: 64 bytes
+
+   Because the exported value can be independently calculated by both
+   sides of the TLS connection, the value to be signed is not sent on
+   the wire at any time.  The same signed value is used for all
+   "CERTIFICATE_PROOF" frames in a single HTTP/2 connection.
+
+   A "CERTIFICATE_PROOF" frame MUST be sent only after all "CERTIFICATE"
+   frames with the same Request-ID have been sent, and MUST correspond
+   to the first certificate presented in the first "CERTIFICATE" frame
+   with that Request-ID.  Receipt of multiple "CERTIFICATE_PROOF" frames
+   for the same Request-ID, receipt of a "CERTIFICATE_PROOF" frame
+   without a corresponding "CERTIFICATE" frame, or receipt of a
+   "CERTIFICATE" frame after a corresponding "CERTIFICATE_PROOF" MUST be
+   treated as a session error of type "PROTOCOL_ERROR".
+
+   If the "AUTOMATIC_USE" flag is set, the recipient MAY omit sending
+   "CERTIFICATE_REQUIRED" frames on future streams associated with this
+   certificate request and use the referenced certificate for
+   authentication without further notice to the holder.  This behavior
+   is optional, and receipt of a "CERTIFICATE_REQUIRED" frame does not
+   imply that previously-presented certificates were unacceptable to the
+   server.  Servers MUST set the "AUTOMATIC_USE" flag when sending a
    "CERTIFICATE_PROOF" frame.
 
-2.5.  The USE_CERTIFICATE Frame
+4.  Indicating failures during HTTP-Layer Certificate Authentication
 
-   The "USE_CERTIFICATE" frame is sent by servers to indicate that
-   processing of a server-initiated stream should use a certificate
-   provided in a previous series of "CERTIFICATE" and
-   "CERTIFICATE_PROOF" frames.  The frame includes a certificate
-   identifier which can be used to correlate the stream with a
-   certificate received on stream zero.
-
-   A "USE_CERTIFICATE" frame with no payload expresses the server's
-   choice to proceed without providing a certificate.  Clients SHOULD
-   process the request as authenticated solely by the certificate
-   provided at the TLS layer, likely by discarding the pushed resource
-   and terminating the stream.
-
-   Otherwise, the "USE_CERTIFICATE" frame contains a single octet, which
-   is the authentication request identifier.  A server that receives a
-   "USE_CERTIFICATE" of any other length MUST treat this as a stream
-   error of type "PROTOCOL_ERROR".  Frames with identical request
-   identifiers refer to the same certificate chain.
-
-   The server MUST NOT send a "USE_CERTIFICATE" frame on stream zero or
-   a client-initiated stream.  A client that receives a
-   "USE_CERTIFICATE" frame on an inappropriate stream SHOULD treat this
-   as a connection error of type "PROTOCOL_ERROR".
-
-3.  Indicating failures during Certificate Authentication
-
-   The errors defined by [I-D.thomson-http2-client-certs] MAY be used by
-   either clients or servers, as appropriate.
+   Because this draft permits client certificates to be exchanged at the
+   HTTP framing layer instead of the TLS layer, several certificate-
+   related errors which are defined at the TLS layer might now occur at
+   the HTTP framing layer.  In this section, those errors are restated
+   and added to the HTTP/2 error code registry.
 
 
 
 
 
-
-
-
-Bishop                 Expires September 16, 2016               [Page 6]
+Bishop & Thomson        Expires October 15, 2016               [Page 16]
 
-Internet-Draft           HTTP/2 Additional Certs              March 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
 
 
-4.  Indicating Support for HTTP-Layer Certificate Authentication
+   BAD_CERTIFICATE (0xERROR-TBD1):  A certificate was corrupt, contained
+      signatures that did not verify correctly, etc.
 
-   Servers that support HTTP-layer certificate authentication indicate
-   this using the HTTP/2 "SETTINGS_HTTP_CERT_AUTH" setting defined in
-   [I-D.thomson-http2-client-certs].
+   UNSUPPORTED_CERTIFICATE (0xERROR-TBD2):  A certificate was of an
+      unsupported type or did not contain required extensions
 
-   The initial value for the "SETTINGS_HTTP_CERT_AUTH" setting is 0,
-   indicating that the server does not support HTTP-layer certificate
-   authentication.  A server sets the "SETTINGS_HTTP_CERT_AUTH" setting
-   to a value of 1 to indicate support for HTTP-layer certificate
-   authentication as defined in this document.  Any value other than 0
-   or 1 MUST be treated as a connection error (Section 5.4.1 of
-   [RFC7540]) of type "PROTOCOL_ERROR".
+   CERTIFICATE_REVOKED (0xERROR-TBD3):  A certificate was revoked by its
+      signer
+
+   CERTIFICATE_EXPIRED (0xERROR-TBD4):  A certificate has expired or is
+      not currently valid
+
+   BAD_SIGNATURE (0xERROR-TBD5):  The digital signature provided did not
+      match
+
+   CERTIFICATE_TOO_LARGE (0xERROR-TBD6):  The certificate cannot be
+      transferred due to the recipient's "SETTINGS_MAX_FRAME_SIZE"
+
+   CERTIFICATE_GENERAL (0xERROR-TBD7):  Any other certificate-related
+      error
+
+   As described in [RFC7540], implementations MAY choose to treat a
+   stream error as a connection error at any time.  Of particular note,
+   a stream error cannot occur on stream 0, which means that
+   implementations cannot send non-session errors in response to
+   "CERTIFICATE_REQUEST", "CERTIFICATE", and "CERTIFICATE_PROOF" frames.
+   Implementations which do not wish to terminate the connection MAY
+   either send relevant errors on any stream which references the
+   failing certificate in question or process the requests as
+   unauthenticated and provide error information at the HTTP semantic
+   layer.
 
 5.  Security Considerations
 
-   This mechanism defines an alternate way to obtain server certificates
-   other than the TLS handshake.  While the signature of exporter values
-   is expected to be equally secure, it is important to recognize that a
-   vulnerability in this code path is equal to a vulnerability in the
-   TLS handshake.
+   This mechanism defines an alternate way to obtain server and client
+   certificates other than the TLS handshake.  While the signature of
+   exporter values is expected to be equally secure, it is important to
+   recognize that a vulnerability in this code path is equal to a
+   vulnerability in the TLS handshake.
 
    This draft defines a mechanism which could be used to probe servers
    for origins they support, but opens no new attack versus making
@@ -366,33 +944,280 @@ Internet-Draft           HTTP/2 Additional Certs              March 2016
    impose similar denial-of-service mitigations (e.g. request rate
    limits) to "CERTIFICATE_REQUEST" frames as to new TLS connections.
 
+   While the "CERTIFICATE_REQUEST" frame permits the sender to enumerate
+   the acceptable Certificate Authorities for the requested certificate,
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 17]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   it might not be prudent (either for security or data consumption) to
+   include the full list of trusted Certificate Authorities in every
+   request.  Senders, particularly clients, are advised to send an empty
+   "Certificate-Authorities" element unless they are expecting a
+   certificate to be signed by a particular CA or small set of CAs.
+
+   Failure to provide a certificate on a stream after receiving
+   "CERTIFICATE_REQUIRED" blocks processing, and SHOULD be subject to
+   standard timeouts used to guard against unresponsive peers.
+
+   In order to protect the privacy of the connection against triple-
+   handshake attacks, this feature of HTTP/2 MUST be used only over TLS
+   1.3 or greater, or over TLS 1.2 in combination with the Extended
+   Master Secret extension defined in [RFC7627].  Because this feature
+   is intended to operate with equivalent security to the TLS
+   connection, hash and signature algorithms not permitted by the
+   version of TLS in use MUST NOT be used.  Additionally, the following
+   algorithms MUST NOT be used, even if permitted by the underlying TLS
+   version:
+
+   o  MD5
+
+   o  SHA1
+
+   o  SHA224
+
+   o  DSA
+
+   o  ECDSA with curves on prime fields that are less than 240 bits wide
+
+   o  RSA with a prime modulus less than 2048 bits
+
+   Client implementations need to carefully consider the impact of
+   setting the "AUTOMATIC_USE" flag.  This flag is a performance
+   optimization, permitting the client to avoid a round-trip on each
+   request where the server checks for certificate authentication.
+   However, once this flag has been sent, the client has zero knowledge
+   about whether the server will use the referenced cert for any future
+   request, or even for an existing request which has not yet completed.
+   Clients MUST NOT set this flag on any certificate which is not
+   appropriate for currently-in-flight requests, and MUST NOT make any
+   future requests on the same connection which they are not willing to
+   have associated with the provided certificate.
+
+   Implementations need to be aware of the potential for confusion about
+   the state of a connection.  The presence or absence of a validated
+   certificate can change during the processing of a request,
+   potentially multiple times, as "USE_CERTIFICATE" frames are received.
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 18]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   A server that uses certificate authentication needs to be prepared to
+   reevaluate the authorization state of a request as the set of
+   certificates changes.
+
 6.  IANA Considerations
 
-   No changes are made to the registrations in
-   [I-D.thomson-http2-client-certs].
+   The HTTP/2 "SETTINGS_HTTP_CERT_AUTH" setting is registered in
+   Section 6.1.  Five frame types are registered in Section 6.2.  Six
+   error codes are registered in Section 6.3.
+
+6.1.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting
+
+   The SETTINGS_HTTP_CERT_AUTH setting is registered in the "HTTP/2
+   Settings" registry established in [RFC7540].
+
+   Name:  SETTINGS_HTTP_CERT_AUTH
+
+   Code:  0xSETTING-TBD
+
+   Initial Value:  0
+
+   Specification:  This document.
+
+6.2.  New HTTP/2 Frames
+
+   Four new frame types are registered in the "HTTP/2 Frame Types"
+   registry established in [RFC7540].
+
+6.2.1.  CERTIFICATE_REQUIRED
+
+   Frame Type:  CERTIFICATE_REQUIRED
+
+   Code:  0xFRAME-TBD1
+
+   Specification:  This document.
+
+6.2.2.  CERTIFICATE_REQUEST
+
+   Frame Type:  CERTIFICATE_REQUEST
+
+   Code:  0xFRAME-TBD2
+
+   Specification:  This document.
+
+
+
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 19]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+6.2.3.  CERTIFICATE
+
+   Frame Type:  CERTIFICATE
+
+   Code:  0xFRAME-TBD3
+
+   Specification:  This document.
+
+6.2.4.  CERTIFICATE_PROOF
+
+   Frame Type:  CERTIFICATE_PROOF
+
+   Code:  0xFRAME-TBD4
+
+   Specification:  This document.
+
+6.2.5.  USE_CERTIFICATE
+
+   Frame Type:  USE_CERTIFICATE
+
+   Code:  0xFRAME-TBD5
+
+   Specification:  This document.
+
+6.3.  New HTTP/2 Error Codes
+
+   Five new error codes are registered in the "HTTP/2 Error Code"
+   registry established in [RFC7540].
+
+6.3.1.  BAD_CERTIFICATE
+
+   Name:  BAD_CERTIFICATE
+
+   Code:  0xERROR-TBD1
+
+   Specification:  This document.
+
+6.3.2.  UNSUPPORTED_CERTIFICATE
+
+   Name:  UNSUPPORTED_CERTIFICATE
+
+   Code:  0xERROR-TBD2
+
+   Specification:  This document.
+
+
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 20]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+6.3.3.  CERTIFICATE_REVOKED
+
+   Name:  CERTIFICATE_REVOKED
+
+   Code:  0xERROR-TBD3
+
+   Specification:  This document.
+
+6.3.4.  CERTIFICATE_EXPIRED
+
+   Name:  CERTIFICATE_EXPIRED
+
+   Code:  0xERROR-TBD4
+
+   Specification:  This document.
+
+6.3.5.  BAD_SIGNATURE
+
+   Name:  BAD_SIGNATURE
+
+   Code:  0xERROR-TBD5
+
+   Specification:  This document.
+
+6.3.6.  CERTIFICATE_GENERAL
+
+   Name:  CERTIFICATE_GENERAL
+
+   Code:  0xERROR-TBD6
+
+   Specification:  This document.
 
 7.  Acknowledgements
+
+   Eric Rescorla pointed out several failings in an earlier revision.
+   Andrei Popov contributed to the TLS considerations.
 
 8.  References
 
 8.1.  Normative References
 
-   [I-D.thomson-http2-client-certs]
-              Thomson, M. and M. Bishop, "Reactive Certificate-Based
-              Client Authentication in HTTP/2", draft-thomson-http2-
-              client-certs-01 (work in progress), January 2016.
+   [I-D.ietf-tls-tls13]
+              Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", draft-ietf-tls-tls13-12 (work in progress),
+              March 2016.
+
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 21]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <http://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2459]  Housley, R., Ford, W., Polk, W., and D. Solo, "Internet
+              X.509 Public Key Infrastructure Certificate and CRL
+              Profile", RFC 2459, DOI 10.17487/RFC2459, January 1999,
+              <http://www.rfc-editor.org/info/rfc2459>.
+
+   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.2", RFC 5246,
+              DOI 10.17487/RFC5246, August 2008,
+              <http://www.rfc-editor.org/info/rfc5246>.
+
+   [RFC5280]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
+              Housley, R., and W. Polk, "Internet X.509 Public Key
+              Infrastructure Certificate and Certificate Revocation List
+              (CRL) Profile", RFC 5280, DOI 10.17487/RFC5280, May 2008,
+              <http://www.rfc-editor.org/info/rfc5280>.
+
+   [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
+              Layer Security (TLS)", RFC 5705, DOI 10.17487/RFC5705,
+              March 2010, <http://www.rfc-editor.org/info/rfc5705>.
+
+   [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Message Syntax and Routing",
+              RFC 7230, DOI 10.17487/RFC7230, June 2014,
+              <http://www.rfc-editor.org/info/rfc7230>.
 
    [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
               DOI 10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
 
-
-
-Bishop                 Expires September 16, 2016               [Page 7]
-
-Internet-Draft           HTTP/2 Additional Certs              March 2016
-
+   [RFC7627]  Bhargavan, K., Ed., Delignat-Lavaud, A., Pironti, A.,
+              Langley, A., and M. Ray, "Transport Layer Security (TLS)
+              Session Hash and Extended Master Secret Extension",
+              RFC 7627, DOI 10.17487/RFC7627, September 2015,
+              <http://www.rfc-editor.org/info/rfc7627>.
 
    [X690]     ITU-T, "Information technology - ASN.1 encoding Rules:
               Specification of Basic Encoding Rules (BER), Canonical
@@ -401,24 +1226,27 @@ Internet-Draft           HTTP/2 Additional Certs              March 2016
               <http://www.itu.int/ITU-T/studygroups/com17/languages/
               X.690-0207.pdf>.
 
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 22]
+
+Internet-Draft        Secondary Cert Auth in HTTP/2           April 2016
+
+
 8.2.  Informative References
 
    [I-D.ietf-httpbis-alt-svc]
               mnot, m., McManus, P., and J. Reschke, "HTTP Alternative
-              Services", draft-ietf-httpbis-alt-svc-12 (work in
-              progress), February 2016.
-
-   [I-D.ietf-tls-tls13]
-              Rescorla, E., "The Transport Layer Security (TLS) Protocol
-              Version 1.3", draft-ietf-tls-tls13-11 (work in progress),
-              December 2015.
+              Services", draft-ietf-httpbis-alt-svc-14 (work in
+              progress), March 2016.
 
    [I-D.nottingham-httpbis-origin-frame]
               mnot, m. and E. Nygren, "The ORIGIN HTTP/2 Frame", draft-
               nottingham-httpbis-origin-frame-01 (work in progress),
               January 2016.
 
-Author's Address
+Authors' Addresses
 
    Mike Bishop
    Microsoft
@@ -426,6 +1254,10 @@ Author's Address
    Email: michael.bishop@microsoft.com
 
 
+   Martin Thomson
+   Mozilla
+
+   Email: martin.thomson@gmail.com
 
 
 
@@ -445,4 +1277,12 @@ Author's Address
 
 
 
-Bishop                 Expires September 16, 2016               [Page 8]
+
+
+
+
+
+
+
+
+Bishop & Thomson        Expires October 15, 2016               [Page 23]
