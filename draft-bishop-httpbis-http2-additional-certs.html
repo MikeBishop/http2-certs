@@ -285,24 +285,27 @@ li, p {
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 The USE_CERTIFICATE Frame"/>
 <link href="#rfc.section.3.3" rel="Chapter" title="3.3 The CERTIFICATE_REQUEST Frame"/>
 <link href="#rfc.section.3.4" rel="Chapter" title="3.4 The CERTIFICATE frame"/>
+<link href="#rfc.section.3.4.1" rel="Chapter" title="3.4.1 Supplemental-Data"/>
 <link href="#rfc.section.3.5" rel="Chapter" title="3.5 The CERTIFICATE_PROOF Frame"/>
 <link href="#rfc.section.4" rel="Chapter" title="4 Indicating failures during HTTP-Layer Certificate Authentication"/>
 <link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 IANA Considerations"/>
-<link href="#rfc.section.6.1" rel="Chapter" title="6.1 HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting"/>
-<link href="#rfc.section.6.2" rel="Chapter" title="6.2 New HTTP/2 Frames"/>
-<link href="#rfc.section.6.2.1" rel="Chapter" title="6.2.1 CERTIFICATE_REQUIRED"/>
-<link href="#rfc.section.6.2.2" rel="Chapter" title="6.2.2 CERTIFICATE_REQUEST"/>
-<link href="#rfc.section.6.2.3" rel="Chapter" title="6.2.3 CERTIFICATE"/>
-<link href="#rfc.section.6.2.4" rel="Chapter" title="6.2.4 CERTIFICATE_PROOF"/>
-<link href="#rfc.section.6.2.5" rel="Chapter" title="6.2.5 USE_CERTIFICATE"/>
-<link href="#rfc.section.6.3" rel="Chapter" title="6.3 New HTTP/2 Error Codes"/>
-<link href="#rfc.section.6.3.1" rel="Chapter" title="6.3.1 BAD_CERTIFICATE"/>
-<link href="#rfc.section.6.3.2" rel="Chapter" title="6.3.2 UNSUPPORTED_CERTIFICATE"/>
-<link href="#rfc.section.6.3.3" rel="Chapter" title="6.3.3 CERTIFICATE_REVOKED"/>
-<link href="#rfc.section.6.3.4" rel="Chapter" title="6.3.4 CERTIFICATE_EXPIRED"/>
-<link href="#rfc.section.6.3.5" rel="Chapter" title="6.3.5 BAD_SIGNATURE"/>
-<link href="#rfc.section.6.3.6" rel="Chapter" title="6.3.6 CERTIFICATE_GENERAL"/>
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Signature Methods"/>
+<link href="#rfc.section.6.2" rel="Chapter" title="6.2 Supplemental Data"/>
+<link href="#rfc.section.6.3" rel="Chapter" title="6.3 HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting"/>
+<link href="#rfc.section.6.4" rel="Chapter" title="6.4 New HTTP/2 Frames"/>
+<link href="#rfc.section.6.4.1" rel="Chapter" title="6.4.1 CERTIFICATE_REQUIRED"/>
+<link href="#rfc.section.6.4.2" rel="Chapter" title="6.4.2 CERTIFICATE_REQUEST"/>
+<link href="#rfc.section.6.4.3" rel="Chapter" title="6.4.3 CERTIFICATE"/>
+<link href="#rfc.section.6.4.4" rel="Chapter" title="6.4.4 CERTIFICATE_PROOF"/>
+<link href="#rfc.section.6.4.5" rel="Chapter" title="6.4.5 USE_CERTIFICATE"/>
+<link href="#rfc.section.6.5" rel="Chapter" title="6.5 New HTTP/2 Error Codes"/>
+<link href="#rfc.section.6.5.1" rel="Chapter" title="6.5.1 BAD_CERTIFICATE"/>
+<link href="#rfc.section.6.5.2" rel="Chapter" title="6.5.2 UNSUPPORTED_CERTIFICATE"/>
+<link href="#rfc.section.6.5.3" rel="Chapter" title="6.5.3 CERTIFICATE_REVOKED"/>
+<link href="#rfc.section.6.5.4" rel="Chapter" title="6.5.4 CERTIFICATE_EXPIRED"/>
+<link href="#rfc.section.6.5.5" rel="Chapter" title="6.5.5 BAD_SIGNATURE"/>
+<link href="#rfc.section.6.5.6" rel="Chapter" title="6.5.6 CERTIFICATE_GENERAL"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Acknowledgements"/>
 <link href="#rfc.references" rel="Chapter" title="8 References"/>
 <link href="#rfc.references.1" rel="Chapter" title="8.1 Normative References"/>
@@ -315,7 +318,7 @@ li, p {
 
   <meta name="dct.creator" content="Bishop, M. and M. Thomson" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-bishop-httpbis-http2-additional-certs-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2016-4" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-5-17" />
   <meta name="dct.abstract" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
   <meta name="description" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
 
@@ -339,12 +342,12 @@ li, p {
   <td class="right">M. Thomson</td>
 </tr>
 <tr>
-  <td class="left">Expires: October 3, 2016</td>
+  <td class="left">Expires: November 18, 2016</td>
   <td class="right">Mozilla</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">April 2016</td>
+  <td class="right">May 17, 2016</td>
 </tr>
 
     	
@@ -359,7 +362,7 @@ li, p {
 </h1>
 <p>TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient.</p>
 <p>Many HTTP servers host content from several origins. HTTP/2 <a href="#RFC7540">[RFC7540]</a> permits clients to reuse an existing HTTP connection to a server provided that the secondary origin is also in the certificate provided during the TLS <a href="#I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</a> handshake.</p>
-<p>In many cases, origins will wish to maintain separate certificates for different origins but still desire the benefits of a shared HTTP connection. Similarly, servers may require clients to present authentication, but have different requirements based on the content the client is attempting to access.</p>
+<p>In many cases, servers will wish to maintain separate certificates for different origins but still desire the benefits of a shared HTTP connection. Similarly, servers may require clients to present authentication, but have different requirements based on the content the client is attempting to access.</p>
 <p>This document describes a how such certificates can be provided at the HTTP layer to support both scenarios.</p>
 <h1 id="rfc.status">
   <a href="#rfc.status">Status of This Memo</a>
@@ -367,7 +370,7 @@ li, p {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on October 3, 2016.</p>
+<p>This Internet-Draft will expire on November 18, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -396,24 +399,27 @@ li, p {
 <li>3.2.   <a href="#rfc.section.3.2">The USE_CERTIFICATE Frame</a></li>
 <li>3.3.   <a href="#rfc.section.3.3">The CERTIFICATE_REQUEST Frame</a></li>
 <li>3.4.   <a href="#rfc.section.3.4">The CERTIFICATE frame</a></li>
-<li>3.5.   <a href="#rfc.section.3.5">The CERTIFICATE_PROOF Frame</a></li>
+<ul><li>3.4.1.   <a href="#rfc.section.3.4.1">Supplemental-Data</a></li>
+</ul><li>3.5.   <a href="#rfc.section.3.5">The CERTIFICATE_PROOF Frame</a></li>
 </ul><li>4.   <a href="#rfc.section.4">Indicating failures during HTTP-Layer Certificate Authentication</a></li>
 <li>5.   <a href="#rfc.section.5">Security Considerations</a></li>
 <li>6.   <a href="#rfc.section.6">IANA Considerations</a></li>
-<ul><li>6.1.   <a href="#rfc.section.6.1">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></li>
-<li>6.2.   <a href="#rfc.section.6.2">New HTTP/2 Frames</a></li>
-<ul><li>6.2.1.   <a href="#rfc.section.6.2.1">CERTIFICATE_REQUIRED</a></li>
-<li>6.2.2.   <a href="#rfc.section.6.2.2">CERTIFICATE_REQUEST</a></li>
-<li>6.2.3.   <a href="#rfc.section.6.2.3">CERTIFICATE</a></li>
-<li>6.2.4.   <a href="#rfc.section.6.2.4">CERTIFICATE_PROOF</a></li>
-<li>6.2.5.   <a href="#rfc.section.6.2.5">USE_CERTIFICATE</a></li>
-</ul><li>6.3.   <a href="#rfc.section.6.3">New HTTP/2 Error Codes</a></li>
-<ul><li>6.3.1.   <a href="#rfc.section.6.3.1">BAD_CERTIFICATE</a></li>
-<li>6.3.2.   <a href="#rfc.section.6.3.2">UNSUPPORTED_CERTIFICATE</a></li>
-<li>6.3.3.   <a href="#rfc.section.6.3.3">CERTIFICATE_REVOKED</a></li>
-<li>6.3.4.   <a href="#rfc.section.6.3.4">CERTIFICATE_EXPIRED</a></li>
-<li>6.3.5.   <a href="#rfc.section.6.3.5">BAD_SIGNATURE</a></li>
-<li>6.3.6.   <a href="#rfc.section.6.3.6">CERTIFICATE_GENERAL</a></li>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Signature Methods</a></li>
+<li>6.2.   <a href="#rfc.section.6.2">Supplemental Data</a></li>
+<li>6.3.   <a href="#rfc.section.6.3">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></li>
+<li>6.4.   <a href="#rfc.section.6.4">New HTTP/2 Frames</a></li>
+<ul><li>6.4.1.   <a href="#rfc.section.6.4.1">CERTIFICATE_REQUIRED</a></li>
+<li>6.4.2.   <a href="#rfc.section.6.4.2">CERTIFICATE_REQUEST</a></li>
+<li>6.4.3.   <a href="#rfc.section.6.4.3">CERTIFICATE</a></li>
+<li>6.4.4.   <a href="#rfc.section.6.4.4">CERTIFICATE_PROOF</a></li>
+<li>6.4.5.   <a href="#rfc.section.6.4.5">USE_CERTIFICATE</a></li>
+</ul><li>6.5.   <a href="#rfc.section.6.5">New HTTP/2 Error Codes</a></li>
+<ul><li>6.5.1.   <a href="#rfc.section.6.5.1">BAD_CERTIFICATE</a></li>
+<li>6.5.2.   <a href="#rfc.section.6.5.2">UNSUPPORTED_CERTIFICATE</a></li>
+<li>6.5.3.   <a href="#rfc.section.6.5.3">CERTIFICATE_REVOKED</a></li>
+<li>6.5.4.   <a href="#rfc.section.6.5.4">CERTIFICATE_EXPIRED</a></li>
+<li>6.5.5.   <a href="#rfc.section.6.5.5">BAD_SIGNATURE</a></li>
+<li>6.5.6.   <a href="#rfc.section.6.5.6">CERTIFICATE_GENERAL</a></li>
 </ul></ul><li>7.   <a href="#rfc.section.7">Acknowledgements</a></li>
 <li>8.   <a href="#rfc.references">References</a></li>
 <ul><li>8.1.   <a href="#rfc.references.1">Normative References</a></li>
@@ -490,26 +496,37 @@ Client                                      Server
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> <a href="#setting" id="setting">Indicating support for HTTP-layer certificate authentication</a></h1>
 <p id="rfc.section.2.1.p.1">Clients and servers that will accept requests for HTTP-layer certificate authentication indicate this using the HTTP/2 <samp>SETTINGS_HTTP_CERT_AUTH</samp> (0xSETTING-TBD) setting.</p>
 <p id="rfc.section.2.1.p.2">The initial value for the <samp>SETTINGS_HTTP_CERT_AUTH</samp> setting is 0, indicating that the peer does not support HTTP-layer certificate authentication.  If a peer does support HTTP-layer certificate authentication, it uses the setting to communicate its acceptable hash and signature algorithm.</p>
-<p id="rfc.section.2.1.p.3">The setting value is a bitmap, with each set bit reflecting an acceptable signing algorithm for provided certificates.  Each bit MUST NOT be set if a proof signed in this way would be unacceptable to the sender.</p>
+<p id="rfc.section.2.1.p.3">The setting value is a pair of bitmaps. In the lower half, each set bit reflects an acceptable signing algorithm for provided certificates. Each bit MUST NOT be set if a proof signed in this way would be unacceptable to the sender.</p>
 <p/>
 
 <dl>
   <dt>Bit 1 (0x00 00 00 01):</dt>
-  <dd style="margin-left: 8">Always set.  Indicates the ability to interpret requests for certificates.</dd>
-  <dt>Bit 2 (0x00 00 00 02):</dt>
   <dd style="margin-left: 8">ECDSA P-256 with SHA-256</dd>
-  <dt>Bit 3 (0x00 00 00 04):</dt>
+  <dt>Bit 2 (0x00 00 00 02):</dt>
   <dd style="margin-left: 8">ECDSA P-384 with SHA-384</dd>
-  <dt>Bit 4 (0x00 00 00 08):</dt>
+  <dt>Bit 3 (0x00 00 00 04):</dt>
   <dd style="margin-left: 8">Ed25519</dd>
-  <dt>Bit 5 (0x00 00 00 10):</dt>
+  <dt>Bit 4 (0x00 00 00 08):</dt>
   <dd style="margin-left: 8">Ed448</dd>
-  <dt>Bit 6 (0x00 00 00 20):</dt>
+  <dt>Bit 5 (0x00 00 00 10):</dt>
   <dd style="margin-left: 8">RSA-PSS with SHA-256 and MGF1 (minimum of 2048 bits)</dd>
-  <dt>Bits 7-32:</dt>
+  <dt>Bits 6-16:</dt>
   <dd style="margin-left: 8">Reserved for future use</dd>
 </dl>
 <p id="rfc.section.2.1.p.5">If no compatible signature algorithms have been proffered in SETTINGS by a peer, the frames defined in this specification MUST NOT be sent to them, with the exception of empty <samp>USE_CERTIFICATE</samp> frames.</p>
+<p id="rfc.section.2.1.p.6">In the upper half, each set bit reflects an acceptable form of supporting data to include with the certificate.</p>
+<p/>
+
+<dl>
+  <dt>Bit 17 (0x00 01 00 00):</dt>
+  <dd style="margin-left: 8">Always set.  Indicates the ability to interpret requests for certificates.</dd>
+  <dt>Bit 18 (0x00 02 00 00):</dt>
+  <dd style="margin-left: 8">Indicates support for OCSP <a href="#RFC2560">[RFC2560]</a> supporting data.</dd>
+  <dt>Bit 19 (0x00 04 00 00):</dt>
+  <dd style="margin-left: 8">Indicates support for Signed Certificate Timestamp <a href="#RFC6962">[RFC6962]</a> supporting data.</dd>
+  <dt>Bit 20-32:</dt>
+  <dd style="margin-left: 8">Reserved for future use</dd>
+</dl>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#cert-available" id="cert-available">Making certificates or requests available</a></h1>
 <p id="rfc.section.2.2.p.1">When a peer has advertised support for HTTP-layer certificates as in <a href="#setting">Section 2.1</a>, either party can supply additional certificates into the connection at any time. These certificates then become available for the peer to consider when deciding whether a connection is suitable to transport a particular request.</p>
 <p id="rfc.section.2.2.p.2">Available certificates which have the <samp>AUTOMATIC_USE</samp> flag set MAY be used by the recipient without further notice. This means that clients or servers which predict a certificate will be required could pre-supply the certificate without being asked. Regardless of whether <samp>AUTOMATIC_USE</samp> is set, these certificates are available for reference by future <samp>USE_CERTIFICATE</samp> frames.</p>
@@ -644,7 +661,7 @@ Client                                      Server
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  +-------------------------------+-------------------------------+
- |  Cert-ID (8)  |          OCSP-Length (16)     |      OCSP   ...
+ |  Cert-ID (8)  | SData-Count(8)|        SData-Records (*)    ...
  +---------------------------------------------------------------+
  |                          Certificate (*)                    ...
  +---------------------------------------------------------------+
@@ -657,12 +674,37 @@ Client                                      Server
 <dl>
   <dt>Cert-ID:</dt>
   <dd style="margin-left: 8">The sender-assigned ID of the certificate chain.</dd>
-  <dt>OCSP-Length and OCSP:</dt>
-  <dd style="margin-left: 8">OCSP data <a href="#RFC2560">[RFC2560]</a> supporting this certificate, if any. The length of the OCSP field is given by OCSP-Length, which MAY be zero.</dd>
+  <dt>SData-Count and SData-Records:</dt>
+  <dd style="margin-left: 8">An array of Supplemental-Data objects (see <a href="#http-cert-supplemental-data">Section 3.4.1</a>), with the number given by SData-Count, which MAY be zero. Each Supplemental-Data object contains information about the certificate.</dd>
   <dt>Certificate:</dt>
   <dd style="margin-left: 8">An X.509v3 <a href="#RFC5280">[RFC5280]</a> certificate in the sender&#8217;s certificate chain.</dd>
 </dl>
 <p id="rfc.section.3.4.p.7">The first or only <samp>CERTIFICATE</samp> frame with a given Cert-ID MUST contain the sender&#8217;s certificate. Each subsequent certificate SHOULD directly certify the certificate immediately preceding it. A certificate which specifies a trust anchor MAY be omitted, provided that the recipient is known to already possess the relevant certificate. (For example, because it was included in a <samp>CERTIFICATE_REQUEST</samp>&#8217;s Certificate-Authorities list.)</p>
+<h1 id="rfc.section.3.4.1"><a href="#rfc.section.3.4.1">3.4.1.</a> <a href="#http-cert-supplemental-data" id="http-cert-supplemental-data">Supplemental-Data</a></h1>
+<p id="rfc.section.3.4.1.p.1">Supplemental data helps a client to validate a certificate, but is not essential to doing so.  Peers SHOULD NOT include supplemental data which the recipient is known not to support, but MAY offer supplemental data prior to learning which types the recipient supports.</p>
+<p id="rfc.section.3.4.1.p.2">Each supplemental data object has the following format:</p>
+<div id="rfc.figure.9"/>
+<div id="fig-supplemental-data"/>
+<pre>
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-------------------------------+-------------------------------+
+ |     Type(8)   |           Length (16)         |    Data (*) ...
+ +---------------------------------------------------------------+
+ 
+</pre>
+<p class="figure">Figure 9: Supplemental-Data element</p>
+<p id="rfc.section.3.4.1.p.3">The Type field indicates which type of supplemental data is being offered:</p>
+<p/>
+
+<dl>
+  <dt>OSCP (0x0):</dt>
+  <dd style="margin-left: 8">Data contains an OCSP <a href="#RFC2560">[RFC2560]</a> record supporting this certificate.</dd>
+  <dt>SCT (0x1):</dt>
+  <dd style="margin-left: 8">Data contains a Signed Certificate Timestamp <a href="#RFC6962">[RFC6962]</a> supporting this certificate.</dd>
+  <dt>Other values (0x3-0xF):</dt>
+  <dd style="margin-left: 8">Reserved for future use.</dd>
+</dl>
 <h1 id="rfc.section.3.5"><a href="#rfc.section.3.5">3.5.</a> <a href="#http-cert-proof" id="http-cert-proof">The CERTIFICATE_PROOF Frame</a></h1>
 <p id="rfc.section.3.5.p.1">The <samp>CERTIFICATE_PROOF</samp> frame proves possession of the private key corresponding to an end certificate previously shown in a <samp>CERTIFICATE</samp> frame.</p>
 <p id="rfc.section.3.5.p.2">The <samp>CERTIFICATE_PROOF</samp> frame defines one flag:</p>
@@ -672,7 +714,7 @@ Client                                      Server
   <dt>AUTOMATIC_USE (0x01):</dt>
   <dd style="margin-left: 8">Indicates that the certificate can be used automatically on future requests.</dd>
 </dl>
-<div id="rfc.figure.9"/>
+<div id="rfc.figure.10"/>
 <div id="fig-proof-frame"/>
 <pre>
   0                   1                   2                   3
@@ -682,7 +724,7 @@ Client                                      Server
  +---------------------------------------------------------------+
  
 </pre>
-<p class="figure">Figure 9: CERTIFICATE_PROOF frame payload</p>
+<p class="figure">Figure 10: CERTIFICATE_PROOF frame payload</p>
 <p id="rfc.section.3.5.p.4">The <samp>CERTIFICATE_PROOF</samp> frame (0xFRAME-TBD4) contains an <samp>Algorithm</samp> field (a <samp>SignatureAndHashAlgorithm</samp>, from <a href="#I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</a> section 6.3.2.1), describing the hash/signature algorithm pair being used.  [[TODO: Sixteen bits because it is in TLS 1.3; if we&#8217;re using a bitmask to express allowed values, we&#8217;re down to ~5 bits needed to contain all permitted algorithms. Shrink?]]</p>
 <p id="rfc.section.3.5.p.5">The signature is performed as described in <a href="#I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</a>, with the following values being used:</p>
 <p/>
@@ -716,18 +758,77 @@ Client                                      Server
 </dl>
 <p id="rfc.section.4.p.3">As described in <a href="#RFC7540">[RFC7540]</a>, implementations MAY choose to treat a stream error as a connection error at any time. Of particular note, a stream error cannot occur on stream 0, which means that implementations cannot send non-session errors in response to <samp>CERTIFICATE_REQUEST</samp>, <samp>CERTIFICATE</samp>, and <samp>CERTIFICATE_PROOF</samp> frames. Implementations which do not wish to terminate the connection MAY either send relevant errors on any stream which references the failing certificate in question or process the requests as unauthenticated and provide error information at the HTTP semantic layer.</p>
 <h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#security" id="security">Security Considerations</a></h1>
-<p id="rfc.section.5.p.1">This mechanism defines an alternate way to obtain server and client certificates other than the TLS handshake. While the signature of exporter values is expected to be equally secure, it is important to recognize that a vulnerability in this code path is equal to a vulnerability in the TLS handshake.</p>
-<p id="rfc.section.5.p.2">This draft defines a mechanism which could be used to probe servers for origins they support, but opens no new attack versus making repeat TLS connections with different SNI values. Servers SHOULD impose similar denial-of-service mitigations (e.g. request rate limits) to <samp>CERTIFICATE_REQUEST</samp> frames as to new TLS connections.</p>
-<p id="rfc.section.5.p.3">While the <samp>CERTIFICATE_REQUEST</samp> frame permits the sender to enumerate the acceptable Certificate Authorities for the requested certificate, it might not be prudent (either for security or data consumption) to include the full list of trusted Certificate Authorities in every request. Senders, particularly clients, are advised to send an empty <samp>Certificate-Authorities</samp> element unless they are expecting a certificate to be signed by a particular CA or small set of CAs.</p>
-<p id="rfc.section.5.p.4">Failure to provide a certificate on a stream after receiving <samp>CERTIFICATE_REQUIRED</samp> blocks processing, and SHOULD be subject to standard timeouts used to guard against unresponsive peers.</p>
-<p id="rfc.section.5.p.5">In order to protect the privacy of the connection against triple-handshake attacks, this feature of HTTP/2 MUST be used only over TLS 1.3 or greater, or over TLS 1.2 in combination with the Extended Master Secret extension defined in <a href="#RFC7627">[RFC7627]</a>.</p>
-<p id="rfc.section.5.p.6">Client implementations need to carefully consider the impact of setting the <samp>AUTOMATIC_USE</samp> flag. This flag is a performance optimization, permitting the client to avoid a round-trip on each request where the server checks for certificate authentication. However, once this flag has been sent, the client has zero knowledge about whether the server will use the referenced cert for any future request, or even for an existing request which has not yet completed. Clients MUST NOT set this flag on any certificate which is not appropriate for currently-in-flight requests, and MUST NOT make any future requests on the same connection which they are not willing to have associated with the provided certificate.</p>
-<p id="rfc.section.5.p.7">Implementations need to be aware of the potential for confusion about the state of a connection. The presence or absence of a validated certificate can change during the processing of a request, potentially multiple times, as <samp>USE_CERTIFICATE</samp> frames are received. A server that uses certificate authentication needs to be prepared to reevaluate the authorization state of a request as the set of certificates changes.</p>
-<p id="rfc.section.5.p.8">Finally, validating a multitude of signatures can be computationally expensive, while generating an invalid signature is computationally cheap. Implementations will require checks against attacks from this direction. Signature proofs SHOULD NOT be validated until a stream requires the certificate to make progress. A signature which is not valid based on the asserted public key SHOULD be treated as a session error, to avoid further attacks from the peer, though an implementation MAY instead disable HTTP-layer certificates for the current connection instead.</p>
+<p id="rfc.section.5.p.1">This mechanism defines an alternate way to obtain server and client certificates other than the TLS handshake. While the signature of exporter values is expected to be equally secure, it is important to recognize that a vulnerability in this code path is at least equal to a vulnerability in the TLS handshake.</p>
+<p id="rfc.section.5.p.2">This could also increase the impact of a key compromise. Rather than needing to subvert DNS or IP routing in order to use a compromised certificate, a malicious server now only needs a client to connect to <em>some</em> HTTPS site under its control. Clients SHOULD continue to validate that destination IP addresses are valid for the origin either by direct DNS resolution or resolution of a validated Alternative Service. (Future work could include a mechanism for a server to offer proofs.)</p>
+<p id="rfc.section.5.p.3">This draft defines a mechanism which could be used to probe servers for origins they support, but opens no new attack versus making repeat TLS connections with different SNI values. Servers SHOULD impose similar denial-of-service mitigations (e.g. request rate limits) to <samp>CERTIFICATE_REQUEST</samp> frames as to new TLS connections.</p>
+<p id="rfc.section.5.p.4">While the <samp>CERTIFICATE_REQUEST</samp> frame permits the sender to enumerate the acceptable Certificate Authorities for the requested certificate, it might not be prudent (either for security or data consumption) to include the full list of trusted Certificate Authorities in every request. Senders, particularly clients, are advised to send an empty <samp>Certificate-Authorities</samp> element unless they are expecting a certificate to be signed by a particular CA or small set of CAs.</p>
+<p id="rfc.section.5.p.5">Failure to provide a certificate on a stream after receiving <samp>CERTIFICATE_REQUIRED</samp> blocks processing, and SHOULD be subject to standard timeouts used to guard against unresponsive peers.</p>
+<p id="rfc.section.5.p.6">In order to protect the privacy of the connection against triple-handshake attacks, this feature of HTTP/2 MUST be used only over TLS 1.3 or greater, or over TLS 1.2 in combination with the Extended Master Secret extension defined in <a href="#RFC7627">[RFC7627]</a>.</p>
+<p id="rfc.section.5.p.7">Client implementations need to carefully consider the impact of setting the <samp>AUTOMATIC_USE</samp> flag. This flag is a performance optimization, permitting the client to avoid a round-trip on each request where the server checks for certificate authentication. However, once this flag has been sent, the client has zero knowledge about whether the server will use the referenced cert for any future request, or even for an existing request which has not yet completed. Clients MUST NOT set this flag on any certificate which is not appropriate for currently-in-flight requests, and MUST NOT make any future requests on the same connection which they are not willing to have associated with the provided certificate.</p>
+<p id="rfc.section.5.p.8">Implementations need to be aware of the potential for confusion about the state of a connection. The presence or absence of a validated certificate can change during the processing of a request, potentially multiple times, as <samp>USE_CERTIFICATE</samp> frames are received. A server that uses certificate authentication needs to be prepared to reevaluate the authorization state of a request as the set of certificates changes.</p>
+<p id="rfc.section.5.p.9">Finally, validating a multitude of signatures can be computationally expensive, while generating an invalid signature is computationally cheap. Implementations will require checks against attacks from this direction. Signature proofs SHOULD NOT be validated until a stream requires the certificate to make progress. A signature which is not valid based on the asserted public key SHOULD be treated as a session error, to avoid further attacks from the peer, though an implementation MAY instead disable HTTP-layer certificates for the current connection instead.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#iana" id="iana">IANA Considerations</a></h1>
-<p id="rfc.section.6.p.1">The HTTP/2 <samp>SETTINGS_HTTP_CERT_AUTH</samp> setting is registered in <a href="#iana-setting">Section 6.1</a>.  Five frame types are registered in <a href="#iana-frame">Section 6.2</a>.  Six error codes are registered in <a href="#iana-errors">Section 6.3</a>.</p>
-<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#iana-setting" id="iana-setting">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></h1>
-<p id="rfc.section.6.1.p.1">The SETTINGS_HTTP_CERT_AUTH setting is registered in the &#8220;HTTP/2 Settings&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
+<p id="rfc.section.6.p.1">This draft establishes two new registries, and adds entries in three others.</p>
+<p id="rfc.section.6.p.2">Acceptable signature methods are registered in <a href="#iana-signature">Section 6.1</a>.  Acceptable forms of supplemental data are registered in <a href="#iana-supplemental">Section 6.2</a>.</p>
+<p id="rfc.section.6.p.3">The HTTP/2 <samp>SETTINGS_HTTP_CERT_AUTH</samp> setting is registered in <a href="#iana-setting">Section 6.3</a>.  Five frame types are registered in <a href="#iana-frame">Section 6.4</a>.  Six error codes are registered in <a href="#iana-errors">Section 6.5</a>.</p>
+<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#iana-signature" id="iana-signature">Signature Methods</a></h1>
+<p id="rfc.section.6.1.p.1">This document establishes a registry for signature methods acceptable for use with this extension.  The &#8220;HTTP-Layer Certificate Signature Method&#8221; registry manages a space of sixteen values.  The &#8220;HTTP-Layer Certificate Signature Method&#8221; operates under either the &#8220;RFC Required&#8221; or &#8220;IESG Approval&#8221; policy.</p>
+<p id="rfc.section.6.1.p.2">New entries in this registry require the following information:</p>
+<p/>
+
+<dl>
+  <dt>Signature Method:</dt>
+  <dd style="margin-left: 8">A name or label for the signature method</dd>
+  <dt>Bit assignment:</dt>
+  <dd style="margin-left: 8">A single-bit value from 0x0000 to 0x8000</dd>
+  <dt>Specification:</dt>
+  <dd style="margin-left: 8">A document which describes how the signature may be performed</dd>
+</dl>
+<p id="rfc.section.6.1.p.4">The entries in the following table are registered by this document.</p>
+<div id="rfc.figure.11"/>
+<div id="fig-signature-table"/>
+<pre>
++-------------------------------+------------+------------------------------+
+| Signature Method              | Bit        | Specification                |
++-------------------------------+------------+------------------------------+
+| ECDSA P-256 with SHA-256      | 1 (0x0001) | [FIPS-186-4]                 |
+| ECDSA P-384 with SHA-384      | 2 (0x0002) | [FIPS-186-4]                 |
+| Ed25519                       | 3 (0x0004) | [I-D.josefsson-eddsa-ed25519]|
+| Ed448                         | 4 (0x0008) | [I-D.josefsson-eddsa-ed25519]|
+| RSA-PSS with SHA-256 and MGF1 | 5 (0x0010) | [PKCS.1]                     |
++-------------------------------+------------+------------------------------+
+</pre>
+<p class="figure">Figure 11</p>
+<h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#iana-supplemental" id="iana-supplemental">Supplemental Data</a></h1>
+<p id="rfc.section.6.2.p.1">This document establishes a registry for supplemental data types acceptable for use with this extension.  The &#8220;HTTP-Layer Certificate Supplemental Data&#8221; registry manages a space of sixteen values.  The &#8220;HTTP-Layer Certificate Supplemental Data&#8221; operates under either the &#8220;RFC Required&#8221; or &#8220;IESG Approval&#8221; policy.</p>
+<p id="rfc.section.6.2.p.2">New entries in this registry require the following information:</p>
+<p/>
+
+<dl>
+  <dt>Data Type:</dt>
+  <dd style="margin-left: 8">A name or label for the supplemental data type</dd>
+  <dt>Bit assignment:</dt>
+  <dd style="margin-left: 8">A single-bit value from 0x0000 to 0x8000</dd>
+  <dt>Value assignment:</dt>
+  <dd style="margin-left: 8">A value in the range 0x00 to 0xFF; one type MAY reserve multiple values</dd>
+  <dt>Specification:</dt>
+  <dd style="margin-left: 8">A document which describes how the supplemental data may be interpreted</dd>
+</dl>
+<p id="rfc.section.6.2.p.4">The entries in the following table are registered by this document.</p>
+<div id="rfc.figure.12"/>
+<div id="fig-supplemental-data-table"/>
+<pre>
++------------------------+------------+-------+----------------------+
+| Data Type              | Bit        | Value | Specification        |
++------------------------+------------+-------+----------------------+
+| Reserved               | 1 (0x0001) | N/A   | {{setting}}          |
+| OCSP                   | 2 (0x0002) | 0x00  | [RFC2560]            |
+| SCT                    | 3 (0x0004) | 0x01  | [RFC6962]            |
++------------------------+------------+------------------------------+
+</pre>
+<p class="figure">Figure 12</p>
+<h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#iana-setting" id="iana-setting">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></h1>
+<p id="rfc.section.6.3.p.1">The SETTINGS_HTTP_CERT_AUTH setting is registered in the &#8220;HTTP/2 Settings&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
 <p/>
 
 <dl>
@@ -740,9 +841,9 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#iana-frame" id="iana-frame">New HTTP/2 Frames</a></h1>
-<p id="rfc.section.6.2.p.1">Four new frame types are registered in the &#8220;HTTP/2 Frame Types&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
-<h1 id="rfc.section.6.2.1"><a href="#rfc.section.6.2.1">6.2.1.</a> <a href="#certificaterequired" id="certificaterequired">CERTIFICATE_REQUIRED</a></h1>
+<h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#iana-frame" id="iana-frame">New HTTP/2 Frames</a></h1>
+<p id="rfc.section.6.4.p.1">Four new frame types are registered in the &#8220;HTTP/2 Frame Types&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
+<h1 id="rfc.section.6.4.1"><a href="#rfc.section.6.4.1">6.4.1.</a> <a href="#certificaterequired" id="certificaterequired">CERTIFICATE_REQUIRED</a></h1>
 <p/>
 
 <dl>
@@ -753,7 +854,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.2.2"><a href="#rfc.section.6.2.2">6.2.2.</a> <a href="#certificaterequest" id="certificaterequest">CERTIFICATE_REQUEST</a></h1>
+<h1 id="rfc.section.6.4.2"><a href="#rfc.section.6.4.2">6.4.2.</a> <a href="#certificaterequest" id="certificaterequest">CERTIFICATE_REQUEST</a></h1>
 <p/>
 
 <dl>
@@ -764,7 +865,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.2.3"><a href="#rfc.section.6.2.3">6.2.3.</a> <a href="#certificate" id="certificate">CERTIFICATE</a></h1>
+<h1 id="rfc.section.6.4.3"><a href="#rfc.section.6.4.3">6.4.3.</a> <a href="#certificate" id="certificate">CERTIFICATE</a></h1>
 <p/>
 
 <dl>
@@ -775,7 +876,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.2.4"><a href="#rfc.section.6.2.4">6.2.4.</a> <a href="#certificateproof" id="certificateproof">CERTIFICATE_PROOF</a></h1>
+<h1 id="rfc.section.6.4.4"><a href="#rfc.section.6.4.4">6.4.4.</a> <a href="#certificateproof" id="certificateproof">CERTIFICATE_PROOF</a></h1>
 <p/>
 
 <dl>
@@ -786,7 +887,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.2.5"><a href="#rfc.section.6.2.5">6.2.5.</a> <a href="#usecertificate" id="usecertificate">USE_CERTIFICATE</a></h1>
+<h1 id="rfc.section.6.4.5"><a href="#rfc.section.6.4.5">6.4.5.</a> <a href="#usecertificate" id="usecertificate">USE_CERTIFICATE</a></h1>
 <p/>
 
 <dl>
@@ -797,9 +898,9 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#iana-errors" id="iana-errors">New HTTP/2 Error Codes</a></h1>
-<p id="rfc.section.6.3.p.1">Five new error codes are registered in the &#8220;HTTP/2 Error Code&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
-<h1 id="rfc.section.6.3.1"><a href="#rfc.section.6.3.1">6.3.1.</a> <a href="#badcertificate" id="badcertificate">BAD_CERTIFICATE</a></h1>
+<h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#iana-errors" id="iana-errors">New HTTP/2 Error Codes</a></h1>
+<p id="rfc.section.6.5.p.1">Five new error codes are registered in the &#8220;HTTP/2 Error Code&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
+<h1 id="rfc.section.6.5.1"><a href="#rfc.section.6.5.1">6.5.1.</a> <a href="#badcertificate" id="badcertificate">BAD_CERTIFICATE</a></h1>
 <p/>
 
 <dl>
@@ -810,7 +911,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3.2"><a href="#rfc.section.6.3.2">6.3.2.</a> <a href="#unsupportedcertificate" id="unsupportedcertificate">UNSUPPORTED_CERTIFICATE</a></h1>
+<h1 id="rfc.section.6.5.2"><a href="#rfc.section.6.5.2">6.5.2.</a> <a href="#unsupportedcertificate" id="unsupportedcertificate">UNSUPPORTED_CERTIFICATE</a></h1>
 <p/>
 
 <dl>
@@ -821,7 +922,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3.3"><a href="#rfc.section.6.3.3">6.3.3.</a> <a href="#certificaterevoked" id="certificaterevoked">CERTIFICATE_REVOKED</a></h1>
+<h1 id="rfc.section.6.5.3"><a href="#rfc.section.6.5.3">6.5.3.</a> <a href="#certificaterevoked" id="certificaterevoked">CERTIFICATE_REVOKED</a></h1>
 <p/>
 
 <dl>
@@ -832,7 +933,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3.4"><a href="#rfc.section.6.3.4">6.3.4.</a> <a href="#certificateexpired" id="certificateexpired">CERTIFICATE_EXPIRED</a></h1>
+<h1 id="rfc.section.6.5.4"><a href="#rfc.section.6.5.4">6.5.4.</a> <a href="#certificateexpired" id="certificateexpired">CERTIFICATE_EXPIRED</a></h1>
 <p/>
 
 <dl>
@@ -843,7 +944,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3.5"><a href="#rfc.section.6.3.5">6.3.5.</a> <a href="#badsignature" id="badsignature">BAD_SIGNATURE</a></h1>
+<h1 id="rfc.section.6.5.5"><a href="#rfc.section.6.5.5">6.5.5.</a> <a href="#badsignature" id="badsignature">BAD_SIGNATURE</a></h1>
 <p/>
 
 <dl>
@@ -854,7 +955,7 @@ Client                                      Server
   <dt>Specification:</dt>
   <dd style="margin-left: 8">This document.</dd>
 </dl>
-<h1 id="rfc.section.6.3.6"><a href="#rfc.section.6.3.6">6.3.6.</a> <a href="#certificategeneral" id="certificategeneral">CERTIFICATE_GENERAL</a></h1>
+<h1 id="rfc.section.6.5.6"><a href="#rfc.section.6.5.6">6.5.6.</a> <a href="#certificategeneral" id="certificategeneral">CERTIFICATE_GENERAL</a></h1>
 <p/>
 
 <dl>
@@ -888,12 +989,6 @@ Client                                      Server
         <b id="RFC2459">[RFC2459]</b>
       </td>
       <td class="top"><a>Housley, R.</a>, <a>Ford, W.</a>, <a>Polk, W.</a> and <a>D. Solo</a>, "<a href="http://tools.ietf.org/html/rfc2459">Internet X.509 Public Key Infrastructure Certificate and CRL Profile</a>", RFC 2459, DOI 10.17487/RFC2459, January 1999.</td>
-    </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC2560">[RFC2560]</b>
-      </td>
-      <td class="top"><a>Myers, M.</a>, <a>Ankney, R.</a>, <a>Malpani, A.</a>, <a>Galperin, S.</a> and <a>C. Adams</a>, "<a href="http://tools.ietf.org/html/rfc2560">X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP</a>", RFC 2560, DOI 10.17487/RFC2560, June 1999.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -944,15 +1039,45 @@ Client                                      Server
   <tbody>
     <tr>
       <td class="reference">
+        <b id="FIPS-186-4">[FIPS-186-4]</b>
+      </td>
+      <td class="top"><a>National Institute of Standards and Technology</a>, "<a href="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf">Digital Signature Standard (DSS)</a>", FIPS 186-4, July 2013.</td>
+    </tr>
+    <tr>
+      <td class="reference">
         <b id="I-D.ietf-httpbis-alt-svc">[I-D.ietf-httpbis-alt-svc]</b>
       </td>
       <td class="top"><a>Nottingham, M.</a>, <a>McManus, P.</a> and <a>J. Reschke</a>, "<a href="http://tools.ietf.org/html/draft-ietf-httpbis-alt-svc-14">HTTP Alternative Services</a>", Internet-Draft draft-ietf-httpbis-alt-svc-14, March 2016.</td>
     </tr>
     <tr>
       <td class="reference">
+        <b id="I-D.josefsson-eddsa-ed25519">[I-D.josefsson-eddsa-ed25519]</b>
+      </td>
+      <td class="top"><a>Josefsson, S.</a> and <a>N. Moller</a>, "<a href="http://tools.ietf.org/html/draft-josefsson-eddsa-ed25519-03">EdDSA and Ed25519</a>", Internet-Draft draft-josefsson-eddsa-ed25519-03, May 2015.</td>
+    </tr>
+    <tr>
+      <td class="reference">
         <b id="I-D.nottingham-httpbis-origin-frame">[I-D.nottingham-httpbis-origin-frame]</b>
       </td>
       <td class="top"><a>Nottingham, M.</a> and <a>E. Nygren</a>, "<a href="http://tools.ietf.org/html/draft-nottingham-httpbis-origin-frame-01">The ORIGIN HTTP/2 Frame</a>", Internet-Draft draft-nottingham-httpbis-origin-frame-01, January 2016.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="PKCS.1.1991">[PKCS.1.1991]</b>
+      </td>
+      <td class="top"><a>RSA Laboratories</a>, "<a>RSA Encryption Standard, Version 1.1</a>", PKCS 1, June 1991.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC2560">[RFC2560]</b>
+      </td>
+      <td class="top"><a>Myers, M.</a>, <a>Ankney, R.</a>, <a>Malpani, A.</a>, <a>Galperin, S.</a> and <a>C. Adams</a>, "<a href="http://tools.ietf.org/html/rfc2560">X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP</a>", RFC 2560, DOI 10.17487/RFC2560, June 1999.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC6962">[RFC6962]</b>
+      </td>
+      <td class="top"><a>Laurie, B.</a>, <a>Langley, A.</a> and <a>E. Kasper</a>, "<a href="http://tools.ietf.org/html/rfc6962">Certificate Transparency</a>", RFC 6962, DOI 10.17487/RFC6962, June 2013.</td>
     </tr>
   </tbody>
 </table>
