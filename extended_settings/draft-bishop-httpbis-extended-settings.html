@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>HTTP/2 Extended SETTINGS Extension</title>
+
+  <style type="text/css">/*<![CDATA[*/
+@viewport {
+  zoom: 1.0;
+  width: extend-to-zoom;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+
+@media screen and (min-width: 1024px) {
+  ul.toc, #rfc\.toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 500px);
+    width: 300px;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #rfc\.toc {
+    top: 16px;
+  }
+  ul.toc {
+    top: 80px;
+    overflow: auto;
+  }
+
+  body {
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+}
+
+body {
+  font: 15px "Helvetica Neue",Helvetica,Arial,sans-serif;
+  color: #333;
+  font-size-adjust: 0.5;
+  line-height: 130%;
+  margin: 2.5em auto;
+  max-width: 724px;
+}
+
+.title, .filename, h1, h2, h3, h4 {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size-adjust: 0.5;
+  font-weight: 500;
+  color: #333;
+  line-height: 100%;
+  margin: 0.8em 0 0.3em;
+}
+.title { font-size: 36px; }
+h1 { font-size: 30px; }
+h2 { font-size: 24px; }
+h3, h4 { font-size: 18px; }
+h1 a[href], h2 a[href], h3 a[href], h4 a[href] {
+  color: #333;
+}
+
+ul.toc li {
+  list-style: none;
+  text-indent: -2.5em;
+  padding-left: 2.5em;
+  padding-bottom: 5px;
+  margin: 0;
+}
+ul.toc, ul.toc ul {
+  margin: 0 0 0 1.5em;
+}
+
+table {
+  margin-left: 0em;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+}
+tr:nth-child(2n+1) > td,
+tr:nth-child(2n+1) > th {
+  background-color: #f9f9f9;
+}
+td.reference {
+  max-width: 200px;
+  border-top: none;
+  padding-right: 1em;
+}
+.right {
+  text-align: right;
+}
+
+
+table.header {
+  width: 100%;
+}
+table.header td {
+  border: none;
+  background-color: transparent;
+  color: black;
+}
+.filename {
+  color: rgb(119, 119, 119);
+  font-size: 23px;
+  font-weight: normal;
+  height: auto;
+  line-height: 100%;
+}
+#rfc\.abstract+p {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 130%;
+}
+
+samp, tt, code, pre {
+  font: 11pt consolas, monospace;
+  font-size-adjust: none;
+}
+pre {
+  background-color: #eee;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+  padding: 5px;
+  margin: 5px;
+}
+.figure {
+  font-style: italic;
+  margin: 0 1.5em;
+}
+
+address {
+  margin: 10px 0 0;
+}
+.vcard {
+  font-style: normal;
+}
+.vcardline {
+  display: block;
+}
+.vcardline .fn {
+  font-weight: bold;
+}
+.vcardline .hidden {
+  display: none;
+}
+
+dl {
+  margin-left: 1em;
+}
+dl.dl-horizontal: {
+  margin-left: 0;
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.nohang > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .5em;
+}
+dl.compact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+ul.empty {
+  list-style-type: none;
+}
+ul.empty li {
+  margin-top: .5em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #2a6496;
+}
+a[href]:hover {
+  background-color: #eee;
+}
+
+ol, ul, li, p {
+  padding: 0;
+  margin: 0.5em 0 0.5em 2em;
+}
+li, p {
+  margin-left: 0;
+}
+
+.github-fork-ribbon-wrapper {
+  display: none;
+}
+@media screen and (min-width: 800px) {
+  /* "Fork me on GitHub" CSS ribbon based on
+   * https://github.com/simonwhitaker/github-fork-ribbon-css
+   */
+  .github-fork-ribbon {
+    position: absolute;
+    padding: 2px 0;
+    background-color: #a00;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);
+    font: 700 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    pointer-events: auto;
+
+    top: 38px;
+    right: -45px;
+
+    transform: rotate(45deg);
+  }
+
+  .github-fork-ribbon a[href],
+  .github-fork-ribbon a[href]:hover {
+    color: #fff;
+    background-color: transparent;
+    text-decoration: none;
+    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+
+    width: 190px;
+    line-height: 18px;
+
+    display: inline-block;
+    padding: 2px 0;
+
+    border: 1.5px dotted #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .github-fork-ribbon-wrapper {
+    display: block;
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    overflow: hidden;
+    top: 0; right: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .github-fork-ribbon-wrapper {
+    position: fixed;
+  }
+  /*]]>*/</style>
+
+  <link href="#rfc.toc" rel="Contents"/>
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction"/>
+<link href="#rfc.section.2" rel="Chapter" title="2 Detection of Support"/>
+<link href="#rfc.section.3" rel="Chapter" title="3 Extension Frame Types"/>
+<link href="#rfc.section.3.1" rel="Chapter" title="3.1 EXTENDED_SETTINGS Frame"/>
+<link href="#rfc.section.3.1.1" rel="Chapter" title="3.1.1 EXTENDED_SETTINGS Format"/>
+<link href="#rfc.section.3.2" rel="Chapter" title="3.2 EXTENDED_SETTINGS_ACK Frame"/>
+<link href="#rfc.section.4" rel="Chapter" title="4 Settings Synchronization"/>
+<link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations"/>
+<link href="#rfc.section.6" rel="Chapter" title="6 IANA Considerations"/>
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Extended Settings Identifiers"/>
+<link href="#rfc.section.6.2" rel="Chapter" title="6.2 HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting"/>
+<link href="#rfc.section.6.3" rel="Chapter" title="6.3 New HTTP/2 Frames"/>
+<link href="#rfc.references" rel="Chapter" title="7 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="7.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="7.2 Informative References"/>
+<link href="#rfc.authors" rel="Chapter"/>
+
+
+  <meta name="generator" content="xml2rfc version 2.5.1 - http://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Bishop, M." />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-bishop-httpbis-extended-settings-latest" />
+  <meta name="dct.issued" scheme="ISO8601" content="2016-5-24" />
+  <meta name="dct.abstract" content="HTTP/2 defines the SETTINGS frame to contain a single 32-bit value per setting. While this is sufficient to convey everything used in the core HTTP/2 specification, some protocols will require more complex values, such as arrays of code-points or strings." />
+  <meta name="description" content="HTTP/2 defines the SETTINGS frame to contain a single 32-bit value per setting. While this is sufficient to convey everything used in the core HTTP/2 specification, some protocols will require more complex values, such as arrays of code-points or strings." />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+  <td class="left">HTTP</td>
+  <td class="right">M. Bishop</td>
+</tr>
+<tr>
+  <td class="left">Internet-Draft</td>
+  <td class="right">Microsoft</td>
+</tr>
+<tr>
+  <td class="left">Intended status: Standards Track</td>
+  <td class="right">May 24, 2016</td>
+</tr>
+<tr>
+  <td class="left">Expires: November 25, 2016</td>
+  <td class="right"></td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">HTTP/2 Extended SETTINGS Extension<br />
+  <span class="filename">draft-bishop-httpbis-extended-settings-latest</span></p>
+  
+  <h1 id="rfc.abstract">
+  <a href="#rfc.abstract">Abstract</a>
+</h1>
+<p>HTTP/2 defines the SETTINGS frame to contain a single 32-bit value per setting. While this is sufficient to convey everything used in the core HTTP/2 specification, some protocols will require more complex values, such as arrays of code-points or strings.</p>
+<p>For such protocols, this extension defines a parallel to the SETTINGS frame, EXTENDED_SETTINGS, where the value of a setting is not a 32-bit value, but a variable-length opaque data blob whose interpretation is subject entirely to the definition of the protocol using it.</p>
+<h1 id="rfc.status">
+  <a href="#rfc.status">Status of This Memo</a>
+</h1>
+<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
+<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
+<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
+<p>This Internet-Draft will expire on November 25, 2016.</p>
+<h1 id="rfc.copyrightnotice">
+  <a href="#rfc.copyrightnotice">Copyright Notice</a>
+</h1>
+<p>Copyright (c) 2016 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (http://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
+<li>2.   <a href="#rfc.section.2">Detection of Support</a></li>
+<li>3.   <a href="#rfc.section.3">Extension Frame Types</a></li>
+<ul><li>3.1.   <a href="#rfc.section.3.1">EXTENDED_SETTINGS Frame</a></li>
+<ul><li>3.1.1.   <a href="#rfc.section.3.1.1">EXTENDED_SETTINGS Format</a></li>
+</ul><li>3.2.   <a href="#rfc.section.3.2">EXTENDED_SETTINGS_ACK Frame</a></li>
+</ul><li>4.   <a href="#rfc.section.4">Settings Synchronization</a></li>
+<li>5.   <a href="#rfc.section.5">Security Considerations</a></li>
+<li>6.   <a href="#rfc.section.6">IANA Considerations</a></li>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Extended Settings Identifiers</a></li>
+<li>6.2.   <a href="#rfc.section.6.2">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></li>
+<li>6.3.   <a href="#rfc.section.6.3">New HTTP/2 Frames</a></li>
+</ul><li>7.   <a href="#rfc.references">References</a></li>
+<ul><li>7.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>7.2.   <a href="#rfc.references.2">Informative References</a></li>
+</ul><li><a href="#rfc.authors">Author's Address</a></li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#problems" id="problems">Introduction</a></h1>
+<p id="rfc.section.1.p.1">In <a href="#I-D.bishop-httpbis-http2-additional-certs">[I-D.bishop-httpbis-http2-additional-certs]</a>, values for which IANA registries already exist must be communicated between two HTTP/2 implementations.  Since the SETTINGS frame constrains setting values to a 32-bit value, the existing version of that draft divides the 32-bit value into halves and dedicates bits to each currently-known value.  This requires the creation of two duplicative IANA registries, and enormously constrains future extensibility since each future supported value will consume one of only sixteen bits.  It also causes divergence from other places in the protocol where a bitmask is not required and a more sensible value can be used.</p>
+<p><a href="#MS-HTTP2E">[MS-HTTP2E]</a>, likewise, defines a very limited bitmap in the 32-bit value &#8211; two bits are defined, all others are reserved (and not useful).  The setting fits easily in a single byte, and need not consume a four-byte value every time it is transferred.  With minor changes to semantics, a simple flag would have been sufficient &#8211; the primary requirement is communication to the remote endpoint that an extension is supported.</p>
+<p id="rfc.section.1.p.3">Alternately, a number of recent and in-progress HTTP/2 extensions describe properties of the connection that are informative to the peer (<a href="#RFC7838">[RFC7838]</a>, <a href="#I-D.ietf-httpbis-origin-frame">[I-D.ietf-httpbis-origin-frame]</a>). These are essentially connection settings that did not fit into a 32-bit value and therefore had new frame types defined.</p>
+<p id="rfc.section.1.p.4">Each extension could define its own SETTINGS-equivalent frame to carry this data, as some extensions already have, but to do so every time a new extension might require such a capability seems similarly wasteful, given the limited frame type space (also an IANA registry).</p>
+<p id="rfc.section.1.p.5">Instead, this draft proposes a unified EXTENDED_SETTINGS frame (and accompanying settings synchronization logic) which permits values of lengths other than 32 bits. These values are interpreted as defined by the specification defining them, operate under similar semantics to the original SETTINGS frame, and should make development of future extensions much simpler.</p>
+<h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#setting" id="setting">Detection of Support</a></h1>
+<p id="rfc.section.2.p.1">An HTTP/2 peer that supports the EXTENDED_SETTINGS frame indicates this using the HTTP/2 <samp>SETTINGS_EXTENDED_SETTINGS</samp> (0xSETTING-TBD) setting.</p>
+<p id="rfc.section.2.p.2">The initial value for the <samp>SETTINGS_EXTENDED_SETTINGS</samp> setting is 0 (0x00), indicating that the peer does not support the EXTENDED_SETTINGS frame. A peer that is able to parse the EXTENDED_SETTINGS frame MUST set this value to 1 (0x01).</p>
+<p id="rfc.section.2.p.3">This setting MUST be sent before any of the frame types in <a href="#frames">Section 3</a> are sent, but those frames MAY be sent before the setting is acknowledged and MAY be sent regardless of whether the peer has sent this setting.</p>
+<h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#frames" id="frames">Extension Frame Types</a></h1>
+<h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#settings-frame" id="settings-frame">EXTENDED_SETTINGS Frame</a></h1>
+<p id="rfc.section.3.1.p.1">The EXTENDED_SETTINGS frame (type=0xFRAME-TBD1) conveys configuration parameters that affect how endpoints communicate, such as preferences and constraints on peer behavior which occur in a form other than a 32-bit value. The EXTENDED_SETTINGS frame is also used to acknowledge the receipt of those parameters. Individually, an EXTENDED_SETTINGS parameter can also be referred to as a &#8220;setting&#8221;.</p>
+<p id="rfc.section.3.1.p.2">EXTENDED_SETTINGS parameters are not negotiated; they describe characteristics of the sending peer, which are used by the receiving peer. However, a negotiation can be implied by the use of EXTENDED_SETTINGS &#8211; a peer uses EXTENDED_SETTINGS to advertise a set of supported values. The recipient can then choose which entries from this list are also acceptable and proceed with the value it has chosen. (This choice could be announced in a field of an extension frame, or in a value in SETTINGS.)</p>
+<p id="rfc.section.3.1.p.3">Different values for the same parameter can be advertised by each peer.  For example, a server might support many different signing algorithms, while a resource constrained client has only one or two that it can validate.</p>
+<p id="rfc.section.3.1.p.4">An EXTENDED_SETTINGS frame MAY be sent at any time by either endpoint over the lifetime of the connection.</p>
+<p id="rfc.section.3.1.p.5">Each parameter in an EXTENDED_SETTINGS frame replaces any existing value for that parameter. Parameters are processed in the order in which they appear, and a receiver of an EXTENDED_SETTINGS frame does not need to maintain any state other than the current value of its parameters.  Therefore, the value of a EXTENDED_SETTINGS parameter is the last value that is seen by a receiver.</p>
+<p id="rfc.section.3.1.p.6">EXTENDED_SETTINGS parameters can request acknowledgement by the receiving peer. To enable this, the EXTENDED_SETTINGS frame defines the following flag:</p>
+<p/>
+
+<dl>
+  <dt>REQUEST_ACK (0x1):</dt>
+  <dd style="margin-left: 8">When set, bit 0 indicates that this frame contains values which the sender wants to know were understood and applied. For more information, see <a href="#synchronization">Section 4</a>.</dd>
+</dl>
+<p id="rfc.section.3.1.p.8">Like SETTINGS frames, EXTENDED_SETTINGS frames always apply to a connection, never a single stream. The stream identifier for an EXTENDED_SETTINGS frame MUST be zero (0x0). If an endpoint receives an EXTENDED_SETTINGS frame whose stream identifier field is anything other than 0x0, the endpoint MUST respond with a connection error (Section 5.4.1) of type PROTOCOL_ERROR.</p>
+<p id="rfc.section.3.1.p.9">The EXTENDED_SETTINGS frame affects connection state. A badly formed or incomplete EXTENDED_SETTINGS frame MUST be treated as a connection error (Section 5.4.1) of type PROTOCOL_ERROR.</p>
+<h1 id="rfc.section.3.1.1"><a href="#rfc.section.3.1.1">3.1.1.</a> <a href="#extendedsettings-format" id="extendedsettings-format">EXTENDED_SETTINGS Format</a></h1>
+<p id="rfc.section.3.1.1.p.1">The payload of a SETTINGS frame consists of zero or more parameters, each consisting of an unsigned 16-bit setting identifier and a length-prefixed binary value.</p>
+<div id="rfc.figure.1"/>
+<div id="fig-ext-settings"/>
+<pre>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-------------------------------+---------------+---------------+
+|        Identifier (16)        |         Length (16)           |
++-----------------------------------------------+---------------+
+|                          Contents (?)                       ...
++---------------------------------------------------------------+
+</pre>
+<p class="figure">Figure 1: EXTENDED_SETTINGS frame payload</p>
+<p id="rfc.section.3.1.1.p.2">In some cases (e.g. indications of feature support), the presence and acknowledgement of a setting may be sufficient, and a value superfluous.  In order to accomodate such cases, implementations MUST track identifiers with zero-length values differently from never-seen identifiers. The initial value of each setting is &#8220;never-seen.&#8221;</p>
+<p id="rfc.section.3.1.1.p.3">An implementation MUST ignore the contents for any EXTENDED_SETTINGS identifier it does not understand.</p>
+<h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#ack" id="ack">EXTENDED_SETTINGS_ACK Frame</a></h1>
+<p id="rfc.section.3.2.p.1">The EXTENDED_SETTINGS_ACK frame (type=0xFRAME-TBD2) acknowledges receipt and application of specific values in the peer&#8217;s SETTINGS frame. It contains a list of EXTENDED_SETTINGS identifiers which the sender has understood and applied. This list MAY be empty.</p>
+<p id="rfc.section.3.2.p.2">Any EXTENDED_SETTINGS_ACK frame whose length is not a multiple of two bytes MUST be treated as a connection error (<a href="#RFC7540">[RFC7540]</a> section 5.4.1) of type <samp>FRAME_SIZE_ERROR</samp>.</p>
+<h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> <a href="#synchronization" id="synchronization">Settings Synchronization</a></h1>
+<p id="rfc.section.4.p.1">Some values in EXTENDED_SETTINGS benefit from or require an understanding of when the peer has received and applied the changed parameter values. In order to provide such synchronization timepoints, the recipient of a EXTENDED_SETTINGS frame MUST apply the updated parameters as soon as possible upon receipt. The values in the EXTENDED_SETTINGS frame MUST be processed in the order they appear, with no other frame processing between values. Unsupported parameters MUST be ignored.</p>
+<p id="rfc.section.4.p.2">Once all values have been processed, if the REQUEST_ACK flag was set, the recipient MUST immediately emit a EXTENDED_SETTINGS_ACK frame listing the identifiers whose values were understood and applied. (If none of the values were understood, the EXTENDED_SETTINGS_ACK frame will be empty, but MUST still be sent.) Upon receiving an EXTENDED_SETTINGS_ACK frame, the sender of the altered parameters can rely on the setting having been applied.</p>
+<p id="rfc.section.4.p.3">If the sender of an EXTENDED_SETTINGS frame with the <samp>REQUEST_ACK</samp> flag set does not receive an acknowledgement from a peer that has sent the <samp>SETTINGS_EXTENDED_SETTINGS</samp> setting within a reasonable amount of time, it MAY issue a connection error (<a href="#RFC7540">[RFC7540]</a> Section 5.4.1) of type SETTINGS_TIMEOUT. This error MUST NOT be sent if the peer has not previously advertised support for EXTENDED_SETTINGS.</p>
+<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> <a href="#security" id="security">Security Considerations</a></h1>
+<p id="rfc.section.5.p.1">Because these frames can be used to request that peers retain potentially-large state, implementations need to use caution in their retention policies.  Values which are not understood MUST be discarded in order to protect against increased memory usage.  Specifications which make use of EXTENDED_SETTINGS MUST include details about how the contents can be parsed and stored, and SHOULD include details about how the information can be compressed and when it can safely be discarded.</p>
+<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#iana" id="iana">IANA Considerations</a></h1>
+<p id="rfc.section.6.p.1">This draft establishes one new registry and add three entries across two existing registries.</p>
+<p id="rfc.section.6.p.2">A registry for Extended Settings identifiers is created in <a href="#iana-extended-settings-values">Section 6.1</a>. Two frame types are registered in <a href="#iana-frame">Section 6.3</a>. The HTTP/2 <samp>SETTINGS_EXTENDED_SETTINGS</samp> setting is registered in <a href="#iana-setting">Section 6.2</a>.</p>
+<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#iana-extended-settings-values" id="iana-extended-settings-values">Extended Settings Identifiers</a></h1>
+<p id="rfc.section.6.1.p.1">This document establishes a registry for HTTP/2 extended settings. The &#8220;HTTP/2 Extended Settings&#8221; registry manages a 16-bit space. The &#8220;HTTP/2 Extended Settings&#8221; registry operates under the &#8220;Expert Review&#8221; policy <a href="#RFC5226">[RFC5226]</a> for values in the range from 0x0000 to 0xefff, with values between and 0xf000 and 0xffff being reserved for Experimental Use.</p>
+<p id="rfc.section.6.1.p.2">New registrations are advised to provide the following information:</p>
+<p/>
+
+<dl>
+  <dt>Name:</dt>
+  <dd style="margin-left: 8">A symbolic name for the setting.  Specifying a setting name is optional.</dd>
+  <dt>Code:</dt>
+  <dd style="margin-left: 8">The 16-bit code assigned to the setting.</dd>
+</dl>
+<p id="rfc.section.6.1.p.4">Specification:  An optional reference to a specification that describes the use of the setting.</p>
+<p id="rfc.section.6.1.p.5">No entries are registered by this document.</p>
+<h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#iana-setting" id="iana-setting">HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting</a></h1>
+<p id="rfc.section.6.2.p.1">The <samp>SETTINGS_EXTENDED_SETTINGS</samp> setting is registered in the &#8220;HTTP/2 Settings&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>.</p>
+<p/>
+
+<dl>
+  <dt>Name:</dt>
+  <dd style="margin-left: 8">SETTINGS_EXTENDED_SETTINGS</dd>
+  <dt>Code:</dt>
+  <dd style="margin-left: 8">0xSETTING-TBD</dd>
+  <dt>Initial Value:</dt>
+  <dd style="margin-left: 8">0</dd>
+  <dt>Specification:</dt>
+  <dd style="margin-left: 8">This document.</dd>
+</dl>
+<h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#iana-frame" id="iana-frame">New HTTP/2 Frames</a></h1>
+<p id="rfc.section.6.3.p.1">Two new frame types are registered in the &#8220;HTTP/2 Frame Types&#8221; registry established in <a href="#RFC7540">[RFC7540]</a>. The entries in the following table are registered by this document.</p>
+<div id="rfc.figure.2"/>
+<div id="fig-frame-table"/>
+<pre>
++-----------------------+--------------+-------------------------+
+| Frame Type            | Code         | Specification           |
++-----------------------+--------------+-------------------------+
+| EXTENDED_SETTINGS     | 0xFRAME-TBD1 | {{settings-frame}}      |
+| EXTENDED_SETTINGS_ACK | 0xFRAME-TBD2 | {{ack}}                 |
++-----------------------+--------------+-------------------------+
+</pre>
+<p class="figure">Figure 2</p>
+<h1 id="rfc.references"><a href="#rfc.references">7.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">7.1.</a> Normative References</h1>
+<table>
+  <tbody>
+    <tr>
+      <td class="reference">
+        <b id="RFC5226">[RFC5226]</b>
+      </td>
+      <td class="top"><a>Narten, T.</a> and <a>H. Alvestrand</a>, "<a href="http://tools.ietf.org/html/rfc5226">Guidelines for Writing an IANA Considerations Section in RFCs</a>", BCP 26, RFC 5226, DOI 10.17487/RFC5226, May 2008.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC7540">[RFC7540]</b>
+      </td>
+      <td class="top"><a>Belshe, M.</a>, <a>Peon, R.</a> and <a>M. Thomson</a>, "<a href="http://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>", RFC 7540, DOI 10.17487/RFC7540, May 2015.</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">7.2.</a> Informative References</h1>
+<table>
+  <tbody>
+    <tr>
+      <td class="reference">
+        <b id="I-D.bishop-httpbis-http2-additional-certs">[I-D.bishop-httpbis-http2-additional-certs]</b>
+      </td>
+      <td class="top"><a>Bishop, M.</a> and <a>M. Thomson</a>, "<a href="http://tools.ietf.org/html/draft-bishop-httpbis-http2-additional-certs-01">Secondary Certificate Authentication in HTTP/2</a>", Internet-Draft draft-bishop-httpbis-http2-additional-certs-01, May 2016.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="I-D.ietf-httpbis-origin-frame">[I-D.ietf-httpbis-origin-frame]</b>
+      </td>
+      <td class="top"><a>Nottingham, M.</a> and <a>E. Nygren</a>, "<a href="http://tools.ietf.org/html/draft-ietf-httpbis-origin-frame-00">The ORIGIN HTTP/2 Frame</a>", Internet-Draft draft-ietf-httpbis-origin-frame-00, May 2016.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="MS-HTTP2E">[MS-HTTP2E]</b>
+      </td>
+      <td class="top"><a>Microsoft Corporation</a>, "<a href="http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/[MS-HTTP2E].pdf">Hypertext Transfer Protocol Version 2 (HTTP/2) Extension</a>", October 2015.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC7838">[RFC7838]</b>
+      </td>
+      <td class="top"><a>Nottingham, M.</a>, <a>McManus, P.</a> and <a>J. Reschke</a>, "<a href="http://tools.ietf.org/html/rfc7838">HTTP Alternative Services</a>", RFC 7838, DOI 10.17487/RFC7838, April 2016.</td>
+    </tr>
+  </tbody>
+</table>
+<h1 id="rfc.authors">
+  <a href="#rfc.authors">Author's Address</a>
+</h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Mike Bishop</span> 
+	  <span class="n hidden">
+		<span class="family-name">Bishop</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Microsoft</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:michael.bishop@microsoft.com">michael.bishop@microsoft.com</a></span>
+
+  </address>
+</div>
+
+  <div class="github-fork-ribbon-wrapper"><div class="github-fork-ribbon"><a href="https://github.com/MikeBishop/http2-certs">Fork me on GitHub</a></div></div>
+</body>
+</html>
