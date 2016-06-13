@@ -75,9 +75,9 @@ communication to the remote endpoint that an extension is supported.
 
 Alternately, a number of recent and in-progress HTTP/2 extensions 
 describe properties of the connection that are informative to the peer 
-([RFC7838], [I-D.ietf-httpbis-origin-frame]). These are essentially 
-connection settings that did not fit into a 32-bit value and therefore
-had new frame types defined.
+([RFC7838], [I-D.ietf-httpbis-origin-frame]). These can be viewed as 
+connection properties that do not fit into a 32-bit value and therefore
+have new frame types defined to carry them instead.
 
 Each extension could define its own SETTINGS-equivalent frame to carry 
 this data, as some extensions already have, but to do so every time 
@@ -113,9 +113,8 @@ this setting.
 The EXTENDED_SETTINGS frame (type=0xFRAME-TBD1) conveys configuration 
 parameters that affect how endpoints communicate, such as preferences 
 and constraints on peer behavior which occur in a form other than a 
-32-bit value. The EXTENDED_SETTINGS frame is also used to acknowledge 
-the receipt of those parameters. Individually, an EXTENDED_SETTINGS 
-parameter can also be referred to as a "setting". 
+32-bit value. Individually, an EXTENDED_SETTINGS parameter can also be 
+referred to as a "setting". 
 
 EXTENDED_SETTINGS parameters are not negotiated; they describe 
 characteristics of the sending peer, which are used by the receiving 
@@ -124,7 +123,7 @@ EXTENDED_SETTINGS -- a peer uses EXTENDED_SETTINGS to advertise a set of
 supported values. The recipient can then choose which entries from this 
 list are also acceptable and proceed with the value it has chosen. (This 
 choice could be announced in a field of an extension frame, or in a 
-value in SETTINGS.) 
+different setting.)
 
 Different values for the same parameter can be advertised by each peer. 
 For example, a server might support many different signing algorithms, 
@@ -154,18 +153,18 @@ Like SETTINGS frames, EXTENDED_SETTINGS frames always apply to a
 connection, never a single stream. The stream identifier for an 
 EXTENDED_SETTINGS frame MUST be zero (0x0). If an endpoint receives an 
 EXTENDED_SETTINGS frame whose stream identifier field is anything other 
-than 0x0, the endpoint MUST respond with a connection error (Section 
-5.4.1) of type PROTOCOL_ERROR. 
+than 0x0, the endpoint MUST respond with a connection error ([RFC7540], 
+section 5.4.1) of type PROTOCOL_ERROR. 
 
 The EXTENDED_SETTINGS frame affects connection state. A badly formed or 
 incomplete EXTENDED_SETTINGS frame MUST be treated as a connection error 
-(Section 5.4.1) of type PROTOCOL_ERROR. 
+([RFC7540], section 5.4.1) of type PROTOCOL_ERROR. 
 
 ### EXTENDED_SETTINGS Format 
 
-The payload of a SETTINGS frame consists of zero or more parameters, 
-each consisting of an unsigned 16-bit setting identifier and a 
-length-prefixed binary value. 
+The payload of an EXTENDED_SETTINGS frame consists of zero or more 
+parameters, each consisting of an unsigned 16-bit setting identifier and 
+a length-prefixed binary value. 
 
 ~~~~~~~~~~~~~~~
 0                   1                   2                   3
@@ -215,7 +214,8 @@ listing the identifiers whose values were understood and applied. (If
 none of the values were understood, the EXTENDED_SETTINGS_ACK frame will 
 be empty, but MUST still be sent.) Upon receiving an 
 EXTENDED_SETTINGS_ACK frame, the sender of the altered parameters can 
-rely on the setting having been applied. 
+know which settings were understood and can rely on that subset having 
+been applied. 
 
 If the sender of an EXTENDED_SETTINGS frame with the `REQUEST_ACK` flag 
 set does not receive an acknowledgement from a peer that has sent the 
@@ -265,6 +265,22 @@ describes the use of the setting.
 
 No entries are registered by this document.
 
+## New HTTP/2 Frames {#iana-frame}
+
+Two new frame types are registered in the "HTTP/2 Frame Types" registry 
+established in [RFC7540]. The entries in the following table are 
+registered by this document. 
+
+~~~~~~~~~~~~
++-----------------------+--------------+-------------------------+
+| Frame Type            | Code         | Specification           |
++-----------------------+--------------+-------------------------+
+| EXTENDED_SETTINGS     | 0xFRAME-TBD1 | {{settings-frame}}      |
+| EXTENDED_SETTINGS_ACK | 0xFRAME-TBD2 | {{ack}}                 |
++-----------------------+--------------+-------------------------+
+~~~~~~~~~~~~~~~
+{: #fig-frame-table}
+
 ## HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting {#iana-setting}
 
 The `SETTINGS_EXTENDED_SETTINGS` setting is registered in the "HTTP/2 
@@ -281,22 +297,6 @@ Initial Value:
 
 Specification:
 : This document.
-
-## New HTTP/2 Frames {#iana-frame}
-
-Two new frame types are registered in the "HTTP/2 Frame Types" registry 
-established in [RFC7540]. The entries in the following table are 
-registered by this document. 
-
-~~~~~~~~~~~~
-+-----------------------+--------------+-------------------------+
-| Frame Type            | Code         | Specification           |
-+-----------------------+--------------+-------------------------+
-| EXTENDED_SETTINGS     | 0xFRAME-TBD1 | {{settings-frame}}      |
-| EXTENDED_SETTINGS_ACK | 0xFRAME-TBD2 | {{ack}}                 |
-+-----------------------+--------------+-------------------------+
-~~~~~~~~~~~~~~~
-{: #fig-frame-table}
 
 
 
