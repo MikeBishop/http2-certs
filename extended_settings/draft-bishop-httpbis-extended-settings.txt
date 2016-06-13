@@ -4,8 +4,8 @@
 
 HTTP                                                           M. Bishop
 Internet-Draft                                                 Microsoft
-Intended status: Standards Track                            May 24, 2016
-Expires: November 25, 2016
+Intended status: Standards Track                           June 13, 2016
+Expires: December 15, 2016
 
 
                    HTTP/2 Extended SETTINGS Extension
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 25, 2016.
+   This Internet-Draft will expire on December 15, 2016.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Bishop                  Expires November 25, 2016               [Page 1]
+Bishop                  Expires December 15, 2016               [Page 1]
 
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
    carefully, as they describe your rights and restrictions with respect
@@ -76,8 +76,8 @@ Table of Contents
    5.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
      6.1.  Extended Settings Identifiers . . . . . . . . . . . . . .   6
-     6.2.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting  . . . . . . . . .   7
-     6.3.  New HTTP/2 Frames . . . . . . . . . . . . . . . . . . . .   7
+     6.2.  New HTTP/2 Frames . . . . . . . . . . . . . . . . . . . .   7
+     6.3.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting  . . . . . . . . .   7
    7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
      7.1.  Normative References  . . . . . . . . . . . . . . . . . .   7
      7.2.  Informative References  . . . . . . . . . . . . . . . . .   8
@@ -109,14 +109,14 @@ Table of Contents
 
 
 
-Bishop                  Expires November 25, 2016               [Page 2]
+Bishop                  Expires December 15, 2016               [Page 2]
 
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
-   peer ([RFC7838], [I-D.ietf-httpbis-origin-frame]).  These are
-   essentially connection settings that did not fit into a 32-bit value
-   and therefore had new frame types defined.
+   peer ([RFC7838], [I-D.ietf-httpbis-origin-frame]).  These can be
+   viewed as connection properties that do not fit into a 32-bit value
+   and therefore have new frame types defined to carry them instead.
 
    Each extension could define its own SETTINGS-equivalent frame to
    carry this data, as some extensions already have, but to do so every
@@ -153,26 +153,25 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
    The EXTENDED_SETTINGS frame (type=0xFRAME-TBD1) conveys configuration
    parameters that affect how endpoints communicate, such as preferences
    and constraints on peer behavior which occur in a form other than a
-   32-bit value.  The EXTENDED_SETTINGS frame is also used to
-   acknowledge the receipt of those parameters.  Individually, an
-   EXTENDED_SETTINGS parameter can also be referred to as a "setting".
+   32-bit value.  Individually, an EXTENDED_SETTINGS parameter can also
+   be referred to as a "setting".
 
    EXTENDED_SETTINGS parameters are not negotiated; they describe
    characteristics of the sending peer, which are used by the receiving
    peer.  However, a negotiation can be implied by the use of
    EXTENDED_SETTINGS - a peer uses EXTENDED_SETTINGS to advertise a set
    of supported values.  The recipient can then choose which entries
-
-
-
-Bishop                  Expires November 25, 2016               [Page 3]
-
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
-
-
    from this list are also acceptable and proceed with the value it has
+
+
+
+Bishop                  Expires December 15, 2016               [Page 3]
+
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
+
+
    chosen.  (This choice could be announced in a field of an extension
-   frame, or in a value in SETTINGS.)
+   frame, or in a different setting.)
 
    Different values for the same parameter can be advertised by each
    peer.  For example, a server might support many different signing
@@ -202,17 +201,17 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
    EXTENDED_SETTINGS frame MUST be zero (0x0).  If an endpoint receives
    an EXTENDED_SETTINGS frame whose stream identifier field is anything
    other than 0x0, the endpoint MUST respond with a connection error
-   (Section 5.4.1) of type PROTOCOL_ERROR.
+   ([RFC7540], section 5.4.1) of type PROTOCOL_ERROR.
 
    The EXTENDED_SETTINGS frame affects connection state.  A badly formed
    or incomplete EXTENDED_SETTINGS frame MUST be treated as a connection
-   error (Section 5.4.1) of type PROTOCOL_ERROR.
+   error ([RFC7540], section 5.4.1) of type PROTOCOL_ERROR.
 
 3.1.1.  EXTENDED_SETTINGS Format
 
-   The payload of a SETTINGS frame consists of zero or more parameters,
-   each consisting of an unsigned 16-bit setting identifier and a
-   length-prefixed binary value.
+   The payload of an EXTENDED_SETTINGS frame consists of zero or more
+   parameters, each consisting of an unsigned 16-bit setting identifier
+   and a length-prefixed binary value.
 
 
 
@@ -221,9 +220,10 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
 
 
 
-Bishop                  Expires November 25, 2016               [Page 4]
+
+Bishop                  Expires December 15, 2016               [Page 4]
 
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
    0                   1                   2                   3
@@ -273,14 +273,17 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
    (If none of the values were understood, the EXTENDED_SETTINGS_ACK
    frame will be empty, but MUST still be sent.)  Upon receiving an
    EXTENDED_SETTINGS_ACK frame, the sender of the altered parameters can
-   rely on the setting having been applied.
 
 
 
-Bishop                  Expires November 25, 2016               [Page 5]
+
+Bishop                  Expires December 15, 2016               [Page 5]
 
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
+
+   know which settings were understood and can rely on that subset
+   having been applied.
 
    If the sender of an EXTENDED_SETTINGS frame with the "REQUEST_ACK"
    flag set does not receive an acknowledgement from a peer that has
@@ -307,9 +310,9 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
    two existing registries.
 
    A registry for Extended Settings identifiers is created in
-   Section 6.1.  Two frame types are registered in Section 6.3.  The
+   Section 6.1.  Two frame types are registered in Section 6.2.  The
    HTTP/2 "SETTINGS_EXTENDED_SETTINGS" setting is registered in
-   Section 6.2.
+   Section 6.3.
 
 6.1.  Extended Settings Identifiers
 
@@ -327,33 +330,20 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
 
    Code:  The 16-bit code assigned to the setting.
 
+
+
+
+Bishop                  Expires December 15, 2016               [Page 6]
+
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
+
+
    Specification: An optional reference to a specification that
    describes the use of the setting.
 
-
-
-
-Bishop                  Expires November 25, 2016               [Page 6]
-
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
-
-
    No entries are registered by this document.
 
-6.2.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting
-
-   The "SETTINGS_EXTENDED_SETTINGS" setting is registered in the "HTTP/2
-   Settings" registry established in [RFC7540].
-
-   Name:  SETTINGS_EXTENDED_SETTINGS
-
-   Code:  0xSETTING-TBD
-
-   Initial Value:  0
-
-   Specification:  This document.
-
-6.3.  New HTTP/2 Frames
+6.2.  New HTTP/2 Frames
 
    Two new frame types are registered in the "HTTP/2 Frame Types"
    registry established in [RFC7540].  The entries in the following
@@ -367,6 +357,19 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
    +-----------------------+--------------+-------------------------+
 
                                  Figure 2
+
+6.3.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting
+
+   The "SETTINGS_EXTENDED_SETTINGS" setting is registered in the "HTTP/2
+   Settings" registry established in [RFC7540].
+
+   Name:  SETTINGS_EXTENDED_SETTINGS
+
+   Code:  0xSETTING-TBD
+
+   Initial Value:  0
+
+   Specification:  This document.
 
 7.  References
 
@@ -386,12 +389,9 @@ Internet-Draft              EXTENDED_SETTINGS                   May 2016
 
 
 
-
-
-
-Bishop                  Expires November 25, 2016               [Page 7]
+Bishop                  Expires December 15, 2016               [Page 7]
 
-Internet-Draft              EXTENDED_SETTINGS                   May 2016
+Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 7.2.  Informative References
@@ -445,4 +445,4 @@ Author's Address
 
 
 
-Bishop                  Expires November 25, 2016               [Page 8]
+Bishop                  Expires December 15, 2016               [Page 8]
