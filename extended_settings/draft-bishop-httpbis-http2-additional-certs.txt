@@ -5,8 +5,8 @@
 HTTP                                                           M. Bishop
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                              M. Thomson
-Expires: December 15, 2016                                       Mozilla
-                                                           June 13, 2016
+Expires: December 21, 2016                                       Mozilla
+                                                           June 19, 2016
 
 
              Secondary Certificate Authentication in HTTP/2
@@ -53,12 +53,12 @@ Status of This Memo
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 1]
+Bishop & Thomson        Expires December 21, 2016               [Page 1]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
-   This Internet-Draft will expire on December 15, 2016.
+   This Internet-Draft will expire on December 21, 2016.
 
 Copyright Notice
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 2]
+Bishop & Thomson        Expires December 21, 2016               [Page 2]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -165,7 +165,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 3]
+Bishop & Thomson        Expires December 21, 2016               [Page 3]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -221,7 +221,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 4]
+Bishop & Thomson        Expires December 21, 2016               [Page 4]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -277,7 +277,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 5]
+Bishop & Thomson        Expires December 21, 2016               [Page 5]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -333,7 +333,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 6]
+Bishop & Thomson        Expires December 21, 2016               [Page 6]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -389,7 +389,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 7]
+Bishop & Thomson        Expires December 21, 2016               [Page 7]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -445,7 +445,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 8]
+Bishop & Thomson        Expires December 21, 2016               [Page 8]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -501,7 +501,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016               [Page 9]
+Bishop & Thomson        Expires December 21, 2016               [Page 9]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -557,7 +557,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 10]
+Bishop & Thomson        Expires December 21, 2016              [Page 10]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -613,7 +613,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 11]
+Bishop & Thomson        Expires December 21, 2016              [Page 11]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -669,7 +669,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 12]
+Bishop & Thomson        Expires December 21, 2016              [Page 12]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -725,7 +725,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 13]
+Bishop & Thomson        Expires December 21, 2016              [Page 13]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -781,7 +781,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 14]
+Bishop & Thomson        Expires December 21, 2016              [Page 14]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -837,7 +837,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 15]
+Bishop & Thomson        Expires December 21, 2016              [Page 15]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -893,7 +893,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 16]
+Bishop & Thomson        Expires December 21, 2016              [Page 16]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -949,7 +949,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 17]
+Bishop & Thomson        Expires December 21, 2016              [Page 17]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1005,7 +1005,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 18]
+Bishop & Thomson        Expires December 21, 2016              [Page 18]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1061,7 +1061,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 19]
+Bishop & Thomson        Expires December 21, 2016              [Page 19]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1117,7 +1117,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 20]
+Bishop & Thomson        Expires December 21, 2016              [Page 20]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 21]
+Bishop & Thomson        Expires December 21, 2016              [Page 21]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1229,7 +1229,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 22]
+Bishop & Thomson        Expires December 21, 2016              [Page 22]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1285,7 +1285,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 23]
+Bishop & Thomson        Expires December 21, 2016              [Page 23]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1341,7 +1341,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 24]
+Bishop & Thomson        Expires December 21, 2016              [Page 24]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1397,7 +1397,7 @@ Authors' Addresses
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 25]
+Bishop & Thomson        Expires December 21, 2016              [Page 25]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
@@ -1453,4 +1453,4 @@ Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 
-Bishop & Thomson        Expires December 15, 2016              [Page 26]
+Bishop & Thomson        Expires December 21, 2016              [Page 26]

@@ -4,8 +4,8 @@
 
 HTTP                                                           M. Bishop
 Internet-Draft                                                 Microsoft
-Intended status: Standards Track                           June 13, 2016
-Expires: December 15, 2016
+Intended status: Standards Track                           June 19, 2016
+Expires: December 21, 2016
 
 
                    HTTP/2 Extended SETTINGS Extension
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 15, 2016.
+   This Internet-Draft will expire on December 21, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Bishop                  Expires December 15, 2016               [Page 1]
+Bishop                  Expires December 21, 2016               [Page 1]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Bishop                  Expires December 15, 2016               [Page 2]
+Bishop                  Expires December 21, 2016               [Page 2]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -165,7 +165,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 
-Bishop                  Expires December 15, 2016               [Page 3]
+Bishop                  Expires December 21, 2016               [Page 3]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -221,7 +221,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 
-Bishop                  Expires December 15, 2016               [Page 4]
+Bishop                  Expires December 21, 2016               [Page 4]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -277,7 +277,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 
-Bishop                  Expires December 15, 2016               [Page 5]
+Bishop                  Expires December 21, 2016               [Page 5]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -306,7 +306,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 6.  IANA Considerations
 
-   This draft establishes one new registry and add three entries across
+   This draft establishes one new registry and adds three entries across
    two existing registries.
 
    A registry for Extended Settings identifiers is created in
@@ -333,7 +333,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 
-Bishop                  Expires December 15, 2016               [Page 6]
+Bishop                  Expires December 21, 2016               [Page 6]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -389,7 +389,7 @@ Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
 
 
-Bishop                  Expires December 15, 2016               [Page 7]
+Bishop                  Expires December 21, 2016               [Page 7]
 
 Internet-Draft              EXTENDED_SETTINGS                  June 2016
 
@@ -445,4 +445,4 @@ Author's Address
 
 
 
-Bishop                  Expires December 15, 2016               [Page 8]
+Bishop                  Expires December 21, 2016               [Page 8]
