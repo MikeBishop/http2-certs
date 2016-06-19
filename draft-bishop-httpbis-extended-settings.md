@@ -235,7 +235,7 @@ how the information can be compressed and when it can safely be discarded.
 
 # IANA Considerations {#iana}
 
-This draft establishes one new registry and add three entries across two 
+This draft establishes one new registry and adds three entries across two 
 existing registries. 
 
 A registry for Extended Settings identifiers is created in 
