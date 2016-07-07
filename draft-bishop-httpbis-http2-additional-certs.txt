@@ -5,8 +5,8 @@
 HTTP                                                           M. Bishop
 Internet-Draft                                                 Microsoft
 Intended status: Standards Track                              M. Thomson
-Expires: November 20, 2016                                       Mozilla
-                                                            May 19, 2016
+Expires: December 15, 2016                                       Mozilla
+                                                           June 13, 2016
 
 
              Secondary Certificate Authentication in HTTP/2
@@ -53,12 +53,12 @@ Status of This Memo
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 1]
+Bishop & Thomson        Expires December 15, 2016               [Page 1]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
-   This Internet-Draft will expire on November 20, 2016.
+   This Internet-Draft will expire on December 15, 2016.
 
 Copyright Notice
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 2]
+Bishop & Thomson        Expires December 15, 2016               [Page 2]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  23
@@ -165,9 +165,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 3]
+Bishop & Thomson        Expires December 15, 2016               [Page 3]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    currently reuse connections, even if both client and server would
@@ -221,9 +221,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 4]
+Bishop & Thomson        Expires December 15, 2016               [Page 4]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Figure 1 shows the server initiating a TLS-layer renegotiation in
@@ -277,9 +277,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 5]
+Bishop & Thomson        Expires December 15, 2016               [Page 5]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Client                                      Server
@@ -333,9 +333,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 6]
+Bishop & Thomson        Expires December 15, 2016               [Page 6]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    breaking the existing interface between HTTP and applications above
@@ -389,9 +389,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 7]
+Bishop & Thomson        Expires December 15, 2016               [Page 7]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Data sent by each peer is correlated by the ID given in each frame.
@@ -445,9 +445,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 8]
+Bishop & Thomson        Expires December 15, 2016               [Page 8]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Bit 19 (0x00 04 00 00):  Indicates support for Signed Certificate
@@ -501,9 +501,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016               [Page 9]
+Bishop & Thomson        Expires December 15, 2016               [Page 9]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    represents an explicit claim by the server to possess the appropriate
@@ -557,9 +557,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 10]
+Bishop & Thomson        Expires December 15, 2016              [Page 10]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Client                                      Server
@@ -613,9 +613,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 11]
+Bishop & Thomson        Expires December 15, 2016              [Page 11]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    sent on other streams where the sender is expecting a certificate
@@ -669,9 +669,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 12]
+Bishop & Thomson        Expires December 15, 2016              [Page 12]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    stream which is not in a valid state SHOULD treat this as a stream
@@ -725,9 +725,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 13]
+Bishop & Thomson        Expires December 15, 2016              [Page 13]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    o  Each certificate that is not self-signed MUST be signed using a
@@ -781,9 +781,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 14]
+Bishop & Thomson        Expires December 15, 2016              [Page 14]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
       root CA or for a subordinate CA; thus, this message can be used to
@@ -837,9 +837,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 15]
+Bishop & Thomson        Expires December 15, 2016              [Page 15]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    [RFC7540] section 4.2).  Senders unable to transfer a requested
@@ -893,9 +893,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 16]
+Bishop & Thomson        Expires December 15, 2016              [Page 16]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
      0                   1                   2                   3
@@ -949,9 +949,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 17]
+Bishop & Thomson        Expires December 15, 2016              [Page 17]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    The signature is performed as described in [I-D.ietf-tls-tls13], with
@@ -1005,9 +1005,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 18]
+Bishop & Thomson        Expires December 15, 2016              [Page 18]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    BAD_CERTIFICATE (0xERROR-TBD1):  A certificate was corrupt, contained
@@ -1061,9 +1061,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 19]
+Bishop & Thomson        Expires December 15, 2016              [Page 19]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    This draft defines a mechanism which could be used to probe servers
@@ -1117,9 +1117,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 20]
+Bishop & Thomson        Expires December 15, 2016              [Page 20]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    valid based on the asserted public key SHOULD be treated as a session
@@ -1173,9 +1173,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 21]
+Bishop & Thomson        Expires December 15, 2016              [Page 21]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 6.2.  Supplemental Data
@@ -1229,9 +1229,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 22]
+Bishop & Thomson        Expires December 15, 2016              [Page 22]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 6.4.  New HTTP/2 Frames
@@ -1285,9 +1285,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 23]
+Bishop & Thomson        Expires December 15, 2016              [Page 23]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
 8.1.  Normative References
@@ -1341,9 +1341,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 24]
+Bishop & Thomson        Expires December 15, 2016              [Page 24]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    [X690]     ITU-T, "Information technology - ASN.1 encoding Rules:
@@ -1397,9 +1397,9 @@ Authors' Addresses
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 25]
+Bishop & Thomson        Expires December 15, 2016              [Page 25]
 
-Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
+Internet-Draft        Secondary Cert Auth in HTTP/2            June 2016
 
 
    Mike Bishop
@@ -1453,4 +1453,4 @@ Internet-Draft        Secondary Cert Auth in HTTP/2             May 2016
 
 
 
-Bishop & Thomson        Expires November 20, 2016              [Page 26]
+Bishop & Thomson        Expires December 15, 2016              [Page 26]
