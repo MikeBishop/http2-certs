@@ -316,7 +316,7 @@ address {
 
   <meta name="dct.creator" content="Bishop, M., Sullivan, N., and M. Thomson" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-bishop-httpbis-http2-additional-certs-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2017-3-27" />
+  <meta name="dct.issued" scheme="ISO8601" content="2017-5-19" />
   <meta name="dct.abstract" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
   <meta name="description" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
 
@@ -340,7 +340,7 @@ address {
   <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-  <td class="left">Expires: September 28, 2017</td>
+  <td class="left">Expires: November 20, 2017</td>
   <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -353,7 +353,7 @@ address {
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">March 27, 2017</td>
+  <td class="right">May 19, 2017</td>
 </tr>
 
     	
@@ -369,14 +369,14 @@ address {
 <p>TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient.</p>
 <p>Many HTTP servers host content from several origins. HTTP/2 <a href="#RFC7540">[RFC7540]</a> permits clients to reuse an existing HTTP connection to a server provided that the secondary origin is also in the certificate provided during the TLS <a href="#I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</a> handshake.</p>
 <p>In many cases, servers will wish to maintain separate certificates for different origins but still desire the benefits of a shared HTTP connection. Similarly, servers may require clients to present authentication, but have different requirements based on the content the client is attempting to access.</p>
-<p>This document describes a how TLS exported authenticators <a href="#I-D.sullivan-tls-exported-authenticator">[I-D.sullivan-tls-exported-authenticator]</a> can be used to provide proof of ownership of additional certificates to the HTTP layer to support both scenarios.</p>
+<p>This document describes how TLS exported authenticators <a href="#I-D.ietf-tls-exported-authenticator">[I-D.ietf-tls-exported-authenticator]</a> can be used to provide proof of ownership of additional certificates to the HTTP layer to support both scenarios.</p>
 <h1 id="rfc.status">
   <a href="#rfc.status">Status of This Memo</a>
 </h1>
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on September 28, 2017.</p>
+<p>This Internet-Draft will expire on November 20, 2017.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -425,9 +425,9 @@ address {
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a></h1>
-<p id="rfc.section.1.p.1">HTTP clients need to know that the content they receive on a connection comes from the origin that they intended to retrieve in from.  The traditional form of server authentication in HTTP has been in the form of X.509 certificates provided during the TLS <a href="#I-D.ietf-tls-tls13">RFC5246</a> <cite title="NONE">[I-D.ietf-tls-tls13]</cite> handshake.</p>
+<p id="rfc.section.1.p.1">HTTP clients need to know that the content they receive on a connection comes from the origin that they intended to retrieve in from. The traditional form of server authentication in HTTP has been in the form of X.509 certificates provided during the TLS <a href="#I-D.ietf-tls-tls13">RFC5246</a> <cite title="NONE">[I-D.ietf-tls-tls13]</cite> handshake.</p>
 <p id="rfc.section.1.p.2">Many existing HTTP <a href="#RFC7230">[RFC7230]</a> servers also have authentication requirements for the resources they serve.  Of the bountiful authentication options available for authenticating HTTP requests, client certificates present a unique challenge for resource-specific authentication requirements because of the interaction with the underlying TLS layer.</p>
-<p id="rfc.section.1.p.3">TLS 1.2 <a href="#RFC5246">[RFC5246]</a> supports one server and one client certificate on a connection.  These certificates may contain multiple identities, but only one certificate may be provided.</p>
+<p id="rfc.section.1.p.3">TLS 1.2 <a href="#RFC5246">[RFC5246]</a> supports one server and one client certificate on a connection. These certificates may contain multiple identities, but only one certificate may be provided.</p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> <a href="#server-certificate-authentication" id="server-certificate-authentication">Server Certificate Authentication</a></h1>
 <p id="rfc.section.1.1.p.1">Section 9.1.1 of <a href="#RFC7540">[RFC7540]</a> describes how connections may be used to make requests from multiple origins as long as the server is authoritative for both. A server is considered authoritative for an origin if DNS resolves the origin to the IP address of the server and (for TLS) if the certificate presented by the server contains the origin in the Subject Alternative Names field.</p>
 <p><a href="#RFC7838">[RFC7838]</a> enables a step of abstraction from the DNS resolution. If both hosts have provided an Alternative Service at hostnames which resolve to the IP address of the server, they are considered authoritative just as if DNS resolved the origin itself to that address. However, the server&#8217;s one TLS certificate is still required to contain the name of each origin in question.</p>
@@ -477,14 +477,14 @@ Client                                      Server
 <p id="rfc.section.1.2.3.p.1">An important part of the HTTP/1.1 exchange is that the client is able to easily identify the request that caused the TLS renegotiation.  The client is able to assume that the next unanswered request on the connection is responsible.  The HTTP stack in the client is then able to direct the certificate request to the application or component that initiated that request.  This ensures that the application has the right contextual information for processing the request.</p>
 <p id="rfc.section.1.2.3.p.2">In HTTP/2, a client can have multiple outstanding requests.  Without some sort of correlation information, a client is unable to identify which request caused the server to request a certificate.</p>
 <p id="rfc.section.1.2.3.p.3">Thus, the minimum necessary mechanism to support reactive certificate authentication in HTTP/2 is an identifier that can be use to correlate an HTTP request with a request for a certificate.  Since streams are used for individual requests, correlation with a stream is sufficient.</p>
-<p><a href="#RFC7540">[RFC7540]</a> prohibits renegotiation after any application data has been sent.  This completely blocks reactive certificate authentication in HTTP/2 using TLS 1.2.  If this restriction were relaxed by an extension or update to HTTP/2, such an identifier could be added to TLS 1.2 by means of an extension to TLS.  Unfortunately, many TLS 1.2 implementations do not permit application data to continue during a renegotiation. This is problematic for a multiplexed protocol like HTTP/2.</p>
+<p><a href="#RFC7540">[RFC7540]</a> prohibits renegotiation after any application data has been sent.  This completely blocks reactive certificate authentication in HTTP/2 using TLS 1.2. If this restriction were relaxed by an extension or update to HTTP/2, such an identifier could be added to TLS 1.2 by means of an extension to TLS.  Unfortunately, many TLS 1.2 implementations do not permit application data to continue during a renegotiation. This is problematic for a multiplexed protocol like HTTP/2.</p>
 <h1 id="rfc.section.1.3"><a href="#rfc.section.1.3">1.3.</a> <a href="#http-layer-certificate-authentication" id="http-layer-certificate-authentication">HTTP-Layer Certificate Authentication</a></h1>
 <p id="rfc.section.1.3.p.1">This draft defines HTTP/2 frames to carry the relevant certificate messages, enabling certificate-based authentication of both clients and servers independent of TLS version. This mechanism can be implemented at the HTTP layer without breaking the existing interface between HTTP and applications above it.</p>
-<p id="rfc.section.1.3.p.2">This could be done in a naive manner by replicating the TLS messages as HTTP/2 frames on each stream. However, this would create needless redundancy between streams and require frequent expensive signing operations. Instead, TLS Exported Authenticators <a href="#I-D.sullivan-tls-exported-authenticator">[I-D.sullivan-tls-exported-authenticator]</a> are exchanged on stream zero and the on-stream frames incorporate them by reference as needed.</p>
+<p id="rfc.section.1.3.p.2">This could be done in a naive manner by replicating the TLS messages as HTTP/2 frames on each stream. However, this would create needless redundancy between streams and require frequent expensive signing operations. Instead, TLS Exported Authenticators <a href="#I-D.ietf-tls-exported-authenticator">[I-D.ietf-tls-exported-authenticator]</a> are exchanged on stream zero and the on-stream frames incorporate them by reference as needed.</p>
 <p id="rfc.section.1.3.p.3">TLS Exported Authenticators are structured messages that can be exported by either party of a TLS connection and validated by the other party. An authenticator message can be constructed by either the client or the server given an established TLS connection, a certificate, and a corresponding private key.  Exported Authenticators use the message structures from section 4.4 of <a href="#I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</a>, but different parameters.</p>
 <p id="rfc.section.1.3.p.4">Each Authenticator is computed using a Handshake Context and Finished MAC Key derived from the TLS session.  The Handshake Context is identical for both parties of the TLS connection, while the Finished MAC Key is dependent on whether the Authenticator is created by the client or the server.</p>
 <p id="rfc.section.1.3.p.5">Successfully verified Authenticators result in certificate chains, with verified possession of the corresponding private key, which can be supplied into a collection of available certificates. Likewise, descriptions of desired certificates can be supplied into these collections. These pre-supplied elements are then available for automatic use (in some situations) or for reference by individual streams.</p>
-<p><a href="#discovery">Section 2</a> describes how the feature is employed, defining means to detect support in peers (<a href="#setting">Section 2.1</a>), make certificates and requests available (<a href="#cert-available">Section 2.2</a>), and indicate when streams are blocked waiting on an appropriate certificate (<a href="#cert-challenge">Section 2.3</a>).  <a href="#certs-http2">Section 3</a> defines the required frame types, which parallel the TLS 1.3 message exchange. Finally, <a href="#errors">Section 4</a> defines new error types which can be used to notify peers when the exchange has not been successful.</p>
+<p><a href="#discovery">Section 2</a> describes how the feature is employed, defining means to detect support in peers (<a href="#setting">Section 2.1</a>), make certificates and requests available (<a href="#cert-available">Section 2.2</a>), and indicate when streams are blocked waiting on an appropriate certificate (<a href="#cert-challenge">Section 2.3</a>). <a href="#certs-http2">Section 3</a> defines the required frame types, which parallel the TLS 1.3 message exchange. Finally, <a href="#errors">Section 4</a> defines new error types which can be used to notify peers when the exchange has not been successful.</p>
 <h1 id="rfc.section.1.4"><a href="#rfc.section.1.4">1.4.</a> <a href="#terminology" id="terminology">Terminology</a></h1>
 <p id="rfc.section.1.4.p.1">RFC 2119 <a href="#RFC2119">[RFC2119]</a> defines the terms &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;SHOULD&#8221; and &#8220;MAY&#8221;.</p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> <a href="#discovery" id="discovery">Discovering Additional Certificates at the HTTP/2 Layer</a></h1>
@@ -611,7 +611,7 @@ Client                                      Server
 <p id="rfc.section.3.3.p.7">Servers MUST be able to recognize the &#8220;subjectAltName&#8221; extension (<a href="#RFC2459">[RFC2459]</a> section 4.2.1.7) at a minimum. Clients MUST always specify the desired origin using this extension, though other extensions MAY also be included.</p>
 <p id="rfc.section.3.3.p.8">PKIX RFCs define a variety of certificate extension OIDs and their corresponding value types. Depending on the type, matching certificate extension values are not necessarily bitwise-equal. It is expected that implementations will rely on their PKI libraries to perform certificate selection using these certificate extension OIDs.</p>
 <h1 id="rfc.section.3.4"><a href="#rfc.section.3.4">3.4.</a> <a href="#http-cert" id="http-cert">The CERTIFICATE Frame</a></h1>
-<p id="rfc.section.3.4.p.1">The <samp>CERTIFICATE</samp> frame (id=0xFRAME-TBD3) provides a exported authenticator message (<a href="#I-D.sullivan-tls-exported-authenticator">[I-D.sullivan-tls-exported-authenticator]</a>) from the TLS layer that provides a chain of certificates, associated extensions and proves possession of the private key corresponding to the end-entity certificate.</p>
+<p id="rfc.section.3.4.p.1">The <samp>CERTIFICATE</samp> frame (id=0xFRAME-TBD3) provides a exported authenticator message (<a href="#I-D.ietf-tls-exported-authenticator">[I-D.ietf-tls-exported-authenticator]</a>) from the TLS layer that provides a chain of certificates, associated extensions and proves possession of the private key corresponding to the end-entity certificate.</p>
 <p id="rfc.section.3.4.p.2">The <samp>CERTIFICATE</samp> frame defines one flag:</p>
 <p/>
 
@@ -657,7 +657,7 @@ Client                                      Server
 <p id="rfc.section.5.p.1">This mechanism defines an alternate way to obtain server and client certificates other than in the initial TLS handshake. While the signature of exported authenticator values is expected to be equally secure, it is important to recognize that a vulnerability in this code path is at least equal to a vulnerability in the TLS handshake.</p>
 <h1 id="rfc.section.5.1"><a href="#rfc.section.5.1">5.1.</a> <a href="#impersonation" id="impersonation">Impersonation</a></h1>
 <p id="rfc.section.5.1.p.1">This mechanism could increase the impact of a key compromise. Rather than needing to subvert DNS or IP routing in order to use a compromised certificate, a malicious server now only needs a client to connect to <em>some</em> HTTPS site under its control in order to present the compromised certificate. Clients MUST continue to validate that the destination IP address is valid for the origin either by direct DNS resolution or resolution of a validated Alternative Service. (Future work could include a mechanism for a server to offer proofs.)</p>
-<p id="rfc.section.5.1.p.2">As noted in the Security Considerations of <a href="#I-D.sullivan-tls-exported-authenticator">[I-D.sullivan-tls-exported-authenticator]</a>, it difficult to formally prove that an endpoint is jointly authoritative over multiple certificates, rather than individually authoritative on each certificate.  As a result, clients MUST NOT assume that because one origin was previously colocated with another, those origins will be reachable via the same endpoints in the future.  Clients MUST NOT consider previous secondary certificates to be validated after TLS session resumption.  However, clients MAY query for previously-presented secondary certificates after first repeating the validation of the endpoint&#8217;s IP address against fresh DNS and Alt-Svc information.</p>
+<p id="rfc.section.5.1.p.2">As noted in the Security Considerations of <a href="#I-D.ietf-tls-exported-authenticator">[I-D.ietf-tls-exported-authenticator]</a>, it difficult to formally prove that an endpoint is jointly authoritative over multiple certificates, rather than individually authoritative on each certificate.  As a result, clients MUST NOT assume that because one origin was previously colocated with another, those origins will be reachable via the same endpoints in the future.  Clients MUST NOT consider previous secondary certificates to be validated after TLS session resumption.  However, clients MAY query for previously-presented secondary certificates after first repeating the validation of the endpoint&#8217;s IP address against fresh DNS and Alt-Svc information.</p>
 <h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#fingerprinting" id="fingerprinting">Fingerprinting</a></h1>
 <p id="rfc.section.5.2.p.1">This draft defines a mechanism which could be used to probe servers for origins they support, but opens no new attack versus making repeat TLS connections with different SNI values. Servers SHOULD impose similar denial-of-service mitigations (e.g. request rate limits) to <samp>CERTIFICATE_REQUEST</samp> frames as to new TLS connections.</p>
 <p id="rfc.section.5.2.p.2">While the <samp>CERTIFICATE_REQUEST</samp> frame permits the sender to enumerate the acceptable Certificate Authorities for the requested certificate, it might not be prudent (either for security or data consumption) to include the full list of trusted Certificate Authorities in every request. Senders, particularly clients, SHOULD send an empty <samp>Certificate-Authorities</samp> element unless they are expecting a certificate to be signed by a particular CA or one of a small set of CAs.</p>
@@ -781,15 +781,15 @@ Client                                      Server
   <tbody>
     <tr>
       <td class="reference">
-        <b id="I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</b>
+        <b id="I-D.ietf-tls-exported-authenticator">[I-D.ietf-tls-exported-authenticator]</b>
       </td>
-      <td class="top"><a>Rescorla, E.</a>, "<a href="http://tools.ietf.org/html/draft-ietf-tls-tls13-19">The Transport Layer Security (TLS) Protocol Version 1.3</a>", Internet-Draft draft-ietf-tls-tls13-19, March 2017.</td>
+      <td class="top"><a>Sullivan, N.</a>, "<a href="http://tools.ietf.org/html/draft-ietf-tls-exported-authenticator-00">Exported Authenticators in TLS</a>", Internet-Draft draft-ietf-tls-exported-authenticator-00, May 2017.</td>
     </tr>
     <tr>
       <td class="reference">
-        <b id="I-D.sullivan-tls-exported-authenticator">[I-D.sullivan-tls-exported-authenticator]</b>
+        <b id="I-D.ietf-tls-tls13">[I-D.ietf-tls-tls13]</b>
       </td>
-      <td class="top"><a>Sullivan, N.</a>, "<a href="http://tools.ietf.org/html/draft-sullivan-tls-exported-authenticator-01">Exported Authenticators in TLS</a>", Internet-Draft draft-sullivan-tls-exported-authenticator-01, March 2017.</td>
+      <td class="top"><a>Rescorla, E.</a>, "<a href="http://tools.ietf.org/html/draft-ietf-tls-tls13-20">The Transport Layer Security (TLS) Protocol Version 1.3</a>", Internet-Draft draft-ietf-tls-tls13-20, April 2017.</td>
     </tr>
     <tr>
       <td class="reference">
