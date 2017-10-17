@@ -914,7 +914,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    that an endpoint is jointly authoritative over multiple certificates,
    rather than individually authoritative on each certificate.  As a
    result, clients MUST NOT assume that because one origin was
-   previously collocated with another, those origins will be reachable
+   previously colocated with another, those origins will be reachable
    via the same endpoints in the future.  Clients MUST NOT consider
    previous secondary certificates to be validated after TLS session
    resumption.  However, clients MAY proactively query for previously-
