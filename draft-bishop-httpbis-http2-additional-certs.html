@@ -459,8 +459,9 @@ address {
 </h1>
 <p id="rfc.section.1.1.p.1">Section 9.1.1 of <a href="#RFC7540" class="xref">[RFC7540]</a> describes how connections may be used to make requests from multiple origins as long as the server is authoritative for both. A server is considered authoritative for an origin if DNS resolves the origin to the IP address of the server and (for TLS) if the certificate presented by the server contains the origin in the Subject Alternative Names field.</p>
 <p><a href="#RFC7838" class="xref">[RFC7838]</a> enables a step of abstraction from the DNS resolution. If both hosts have provided an Alternative Service at hostnames which resolve to the IP address of the server, they are considered authoritative just as if DNS resolved the origin itself to that address. However, the server&#8217;s one TLS certificate is still required to contain the name of each origin in question.</p>
-<p id="rfc.section.1.1.p.3">Servers which host many origins often would prefer to have separate certificates for some sets of origins. This may be for ease of certificate management (the ability to separately revoke or renew them), due to different sources of certificates (a CDN acting on behalf of multiple origins), or other factors which might drive this administrative decision. Clients connecting to such origins cannot currently reuse connections, even if both client and server would prefer to do so.</p>
-<p id="rfc.section.1.1.p.4">Because the TLS SNI extension is exchanged in the clear, clients might also prefer to retrieve certificates inside the encrypted context. When this information is sensitive, it might be advantageous to request a general-purpose certificate or anonymous ciphersuite at the TLS layer, while acquiring the &#8220;real&#8221; certificate in HTTP after the connection is established.</p>
+<p><a href="#I-D.ietf-httpbis-origin-frame" class="xref">[I-D.ietf-httpbis-origin-frame]</a> relaxes the requirement to perform the DNS lookup if already connected to a server with an appropriate certificate which claims support for a particular origin.</p>
+<p id="rfc.section.1.1.p.4">Servers which host many origins often would prefer to have separate certificates for some sets of origins. This may be for ease of certificate management (the ability to separately revoke or renew them), due to different sources of certificates (a CDN acting on behalf of multiple origins), or other factors which might drive this administrative decision. Clients connecting to such origins cannot currently reuse connections, even if both client and server would prefer to do so.</p>
+<p id="rfc.section.1.1.p.5">Because the TLS SNI extension is exchanged in the clear, clients might also prefer to retrieve certificates inside the encrypted context. When this information is sensitive, it might be advantageous to request a general-purpose certificate or anonymous ciphersuite at the TLS layer, while acquiring the &#8220;real&#8221; certificate in HTTP after the connection is established.</p>
 <h1 id="rfc.section.1.2">
 <a href="#rfc.section.1.2">1.2.</a> <a href="#client-certificate-authentication" id="client-certificate-authentication">Client Certificate Authentication</a>
 </h1>
@@ -530,7 +531,7 @@ Client                                      Server
 <h1 id="rfc.section.2">
 <a href="#rfc.section.2">2.</a> <a href="#discovery" id="discovery">Discovering Additional Certificates at the HTTP/2 Layer</a>
 </h1>
-<p id="rfc.section.2.p.1">A certificate chain with proof of possesion of the private key corresponding to the end-entity certificate is sent as a single <samp>CERTIFICATE</samp> frame (see <a href="#http-cert" class="xref">Section 3.4</a>) on stream zero. Once the holder of a certificate has sent the chain and proof, this certificate chain is cached by the recipient and available for future use. If the certificate is marked as <samp>AUTOMATIC_USE</samp>, the certificate may be used by the recipient to authorize any current or future request.  Otherwise, the recipient requests the required certificate on each stream, but the previously-supplied certificates are available for reference without having to resend them.</p>
+<p id="rfc.section.2.p.1">A certificate chain with proof of possession of the private key corresponding to the end-entity certificate is sent as a single <samp>CERTIFICATE</samp> frame (see <a href="#http-cert" class="xref">Section 3.4</a>) on stream zero. Once the holder of a certificate has sent the chain and proof, this certificate chain is cached by the recipient and available for future use. If the certificate is marked as <samp>AUTOMATIC_USE</samp>, the certificate may be used by the recipient to authorize any current or future request.  Otherwise, the recipient requests the required certificate on each stream, but the previously-supplied certificates are available for reference without having to resend them.</p>
 <p id="rfc.section.2.p.2">Likewise, the details of a request are sent on stream zero and stored by the recipient. These details will be referenced by subsequent <samp>CERTIFICATE_NEEDED</samp> frames.</p>
 <p id="rfc.section.2.p.3">Data sent by each peer is correlated by the ID given in each frame.  This ID is unrelated to values used by the other peer, even if each uses the same ID in certain cases.</p>
 <h1 id="rfc.section.2.1">
@@ -569,13 +570,14 @@ Client                                      Server
 <a href="#rfc.section.2.3">2.3.</a> <a href="#cert-challenge" id="cert-challenge">Requiring certificate authentication</a>
 </h1>
 <p id="rfc.section.2.3.p.1">As defined in <a href="#RFC7540" class="xref">[RFC7540]</a>, when a client finds that a https:// origin (or Alternative Service <a href="#RFC7838" class="xref">[RFC7838]</a>) to which it needs to make a request has the same IP address as a server to which it is already connected, it MAY check whether the TLS certificate provided contains the new origin as well, and if so, reuse the connection.</p>
-<p id="rfc.section.2.3.p.2">If the TLS certificate does not contain the new origin, but the server has advertised support for HTTP-layer certificates (see <a href="#setting" class="xref">Section 2.1</a>), it MAY send a <samp>CERTIFICATE_NEEDED</samp> frame on the stream it will use to make the request. (If the request parameters have not already been made available using a <samp>CERTIFICATE_REQUEST</samp> frame, the client will need to send the <samp>CERTIFICATE_REQUEST</samp> in order to generate the <samp>CERTIFICATE_NEEDED</samp> frame.) The stream represents a pending request to that origin which is blocked until a valid certificate is processed.</p>
+<p id="rfc.section.2.3.p.2">If the TLS certificate does not contain the new origin, but the server has claimed support for that origin (with an ORIGIN frame, see <a href="#I-D.ietf-httpbis-origin-frame" class="xref">[I-D.ietf-httpbis-origin-frame]</a>) and advertised support for HTTP-layer certificates (see <a href="#setting" class="xref">Section 2.1</a>), it MAY send a <samp>CERTIFICATE_NEEDED</samp> frame on the stream it will use to make the request. (If the request parameters have not already been made available using a <samp>CERTIFICATE_REQUEST</samp> frame, the client will need to send the <samp>CERTIFICATE_REQUEST</samp> in order to generate the <samp>CERTIFICATE_NEEDED</samp> frame.) The stream represents a pending request to that origin which is blocked until a valid certificate is processed.</p>
 <p id="rfc.section.2.3.p.3">The request is blocked until the server has responded with a <samp>USE_CERTIFICATE</samp> frame pointing to a certificate for that origin. If the certificate is already available, the server SHOULD immediately respond with the appropriate <samp>USE_CERTIFICATE</samp> frame. (If the certificate has not already been transmitted, the server will need to make the certificate available as described in <a href="#cert-available" class="xref">Section 2.2</a> before completing the exchange.)</p>
-<p id="rfc.section.2.3.p.4">If the server does not have the desired certificate or cannot produce a signature compatible with the client&#8217;s advertised settings, it MUST respond with an empty <samp>USE_CERTIFICATE</samp> frame. In this case, or if the server has not advertised support for HTTP-layer certificates, the client MUST NOT send any requests for resources in that origin on the current connection.</p>
+<p id="rfc.section.2.3.p.4">If the server does not have the desired certificate, it MUST respond with an empty <samp>USE_CERTIFICATE</samp> frame. In this case, or if the server has not advertised support for HTTP-layer certificates, the client MUST NOT send any requests for resources in that origin on the current connection.</p>
 <div id="rfc.figure.5"></div>
 <div id="ex-http2-server-requested"></div>
 <pre>
 Client                                      Server
+   &lt;----------------------- (stream 0) ORIGIN --
    -- (stream 0) CERTIFICATE_REQUEST ----------&gt;
    ...
    -- (stream N) CERTIFICATE_NEEDED -----------&gt;
@@ -601,7 +603,7 @@ Client                                      Server
 
 </pre>
 <p class="figure">Figure 6: Reactive Certificate Authentication</p>
-<p id="rfc.section.2.3.p.6">A server SHOULD provide certificates for an origin before pushing resources from it. If a client receives a <samp>PUSH_PROMISE</samp> referencing an origin for which it has not yet received the server&#8217;s certificate, the client MUST verify the server&#8217;s possession of an appropriate certificate by sending a <samp>CERTIFICATE_NEEDED</samp> frame on the pushed stream to inform the server that progress is blocked until the request is satisfied. The client MUST NOT use the pushed resource until an appropriate certificate has been received and validated.</p>
+<p id="rfc.section.2.3.p.6">A server SHOULD provide certificates for an origin before pushing resources from it or supplying content referencing the origin. If a client receives a <samp>PUSH_PROMISE</samp> referencing an origin for which it has not yet received the server&#8217;s certificate, the client MUST verify the server&#8217;s possession of an appropriate certificate by sending a <samp>CERTIFICATE_NEEDED</samp> frame on the pushed stream to inform the server that progress is blocked until the request is satisfied. The client MUST NOT use the pushed resource until an appropriate certificate has been received and validated.</p>
 <h1 id="rfc.section.3">
 <a href="#rfc.section.3">3.</a> <a href="#certs-http2" id="certs-http2">Certificates Frames for HTTP/2</a>
 </h1>
@@ -623,7 +625,7 @@ Client                                      Server
 <p id="rfc.section.3.2.p.1">The <samp>USE_CERTIFICATE</samp> frame (0xFRAME-TBD4) is sent in response to a <samp>CERTIFICATE_NEEDED</samp> frame to indicate which certificate is being used to satisfy the requirement.</p>
 <p id="rfc.section.3.2.p.2">A <samp>USE_CERTIFICATE</samp> frame with no payload refers to the certificate provided at the TLS layer, if any. If no certificate was provided at the TLS layer, the stream should be processed with no authentication, likely returning an authentication-related error at the HTTP level (e.g. 403) for servers or routing the request to a new connection for clients.</p>
 <p id="rfc.section.3.2.p.3">Otherwise, the <samp>USE_CERTIFICATE</samp> frame contains the <samp>Cert-ID</samp> of the certificate the sender wishes to use. This MUST be the ID of a certificate for which proof of possession has been presented in a <samp>CERTIFICATE</samp> frame. Recipients of a <samp>USE_CERTIFICATE</samp> frame of any other length MUST treat this as a stream error of type <samp>PROTOCOL_ERROR</samp>. Frames with identical certificate identifiers refer to the same certificate chain.</p>
-<p id="rfc.section.3.2.p.4">The <samp>USE_CERTIFICATE</samp> frame MUST NOT be sent on stream zero or a stream on which a <samp>CERTIFICATE_NEEDED</samp> frame has not been received. Receipt of a <samp>USE_CERTIFICATE</samp> frame in these circmustances SHOULD be treated as a stream error of type <samp>PROTOCOL_ERROR</samp>. Each <samp>USE_CERTIFICATE</samp> frame should reference a preceding <samp>CERTIFICATE</samp> frame. Receipt of a <samp>USE_CERTIFICATE</samp> frame before the necessary frames have been received on stream zero MUST also result in a stream error of type <samp>PROTOCOL_ERROR</samp>.</p>
+<p id="rfc.section.3.2.p.4">The <samp>USE_CERTIFICATE</samp> frame MUST NOT be sent on stream zero or a stream on which a <samp>CERTIFICATE_NEEDED</samp> frame has not been received. Receipt of a <samp>USE_CERTIFICATE</samp> frame in these circumstances SHOULD be treated as a stream error of type <samp>PROTOCOL_ERROR</samp>. Each <samp>USE_CERTIFICATE</samp> frame should reference a preceding <samp>CERTIFICATE</samp> frame. Receipt of a <samp>USE_CERTIFICATE</samp> frame before the necessary frames have been received on stream zero MUST also result in a stream error of type <samp>PROTOCOL_ERROR</samp>.</p>
 <p id="rfc.section.3.2.p.5">The referenced certificate chain MUST conform to the requirements expressed in the <samp>CERTIFICATE_REQUEST</samp> to the best of the sender&#8217;s ability. Specifically:</p>
 <p></p>
 
@@ -691,7 +693,7 @@ Client                                      Server
 <p class="figure">Figure 8: CERTIFICATE frame payload</p>
 <p id="rfc.section.3.4.p.4">The <samp>CERTIFICATE</samp> frame (0xFRAME-TBD4) contains an <samp>Exported Authenticator</samp> field which corresponds to the value returned from the TLS connection exported authenticator API when provided with a certificate, a valid certificate chain for the connection and associated extensions (OCSP, SCT, etc.), and a connection-unique 8-byte certificate_request_context value.</p>
 <p id="rfc.section.3.4.p.5">If the <samp>AUTOMATIC_USE</samp> flag is set, the recipient MAY omit sending <samp>CERTIFICATE_NEEDED</samp> frames on future streams which would require a similar certificate and use the referenced certificate for authentication without further notice to the holder. This behavior is optional, and receipt of a <samp>CERTIFICATE_NEEDED</samp> frame does not imply that previously-presented certificates were unacceptable, even if <samp>AUTOMATIC_USE</samp> was set. Servers MUST set the <samp>AUTOMATIC_USE</samp> flag when sending a <samp>CERTIFICATE</samp> frame. A server MUST NOT send certificates for origins which it is not prepared to service on the current connection.</p>
-<p id="rfc.section.3.4.p.6">Upon recieving a CERTIFICATE frame, the reciever may validate the Exported Authenticator value by using the exported authenticator API. This returns either an error indicating that the message was invalid, or the certificate chain and extensions used to create the message.</p>
+<p id="rfc.section.3.4.p.6">Upon receiving a CERTIFICATE frame, the receiver may validate the Exported Authenticator value by using the exported authenticator API. This returns either an error indicating that the message was invalid, or the certificate chain and extensions used to create the message.</p>
 <p id="rfc.section.3.4.p.7">It is possible that a large certificate chain might be too large to fit in a single HTTP/2 frame (see <a href="#RFC7540" class="xref">[RFC7540]</a> section&#160;4.2).  Senders unable to transfer a requested certificate due to the recipient&#8217;s <samp>SETTINGS_MAX_FRAME_SIZE</samp> value SHOULD terminate affected streams with <samp>CERTIFICATE_TOO_LARGE</samp>.</p>
 <p id="rfc.section.3.4.p.8">The <samp>CERTIFICATE</samp> frame MUST be sent on stream zero.  A <samp>CERTIFICATE</samp> frame received on any other stream MUST be rejected with a stream error of type <samp>PROTOCOL_ERROR</samp>.</p>
 <h1 id="rfc.section.4">
@@ -723,8 +725,8 @@ Client                                      Server
 <h1 id="rfc.section.5.1">
 <a href="#rfc.section.5.1">5.1.</a> <a href="#impersonation" id="impersonation">Impersonation</a>
 </h1>
-<p id="rfc.section.5.1.p.1">This mechanism could increase the impact of a key compromise. Rather than needing to subvert DNS or IP routing in order to use a compromised certificate, a malicious server now only needs a client to connect to <em>some</em> HTTPS site under its control in order to present the compromised certificate. Clients MUST continue to validate that the destination IP address is valid for the origin either by direct DNS resolution or resolution of a validated Alternative Service. (Future work could include a mechanism for a server to offer proofs.)</p>
-<p id="rfc.section.5.1.p.2">As noted in the Security Considerations of <a href="#I-D.ietf-tls-exported-authenticator" class="xref">[I-D.ietf-tls-exported-authenticator]</a>, it difficult to formally prove that an endpoint is jointly authoritative over multiple certificates, rather than individually authoritative on each certificate.  As a result, clients MUST NOT assume that because one origin was previously colocated with another, those origins will be reachable via the same endpoints in the future.  Clients MUST NOT consider previous secondary certificates to be validated after TLS session resumption.  However, clients MAY query for previously-presented secondary certificates after first repeating the validation of the endpoint&#8217;s IP address against fresh DNS and Alt-Svc information.</p>
+<p id="rfc.section.5.1.p.1">This mechanism could increase the impact of a key compromise. Rather than needing to subvert DNS or IP routing in order to use a compromised certificate, a malicious server now only needs a client to connect to <em>some</em> HTTPS site under its control in order to present the compromised certificate. As recommended in <a href="#I-D.ietf-httpbis-origin-frame" class="xref">[I-D.ietf-httpbis-origin-frame]</a>, clients opting not to consult DNS ought to employ some alternative means to increase confidence that the certificate is legitimate.</p>
+<p id="rfc.section.5.1.p.2">As noted in the Security Considerations of <a href="#I-D.ietf-tls-exported-authenticator" class="xref">[I-D.ietf-tls-exported-authenticator]</a>, it difficult to formally prove that an endpoint is jointly authoritative over multiple certificates, rather than individually authoritative on each certificate.  As a result, clients MUST NOT assume that because one origin was previously collocated with another, those origins will be reachable via the same endpoints in the future.  Clients MUST NOT consider previous secondary certificates to be validated after TLS session resumption.  However, clients MAY proactively query for previously-presented secondary certificates.</p>
 <h1 id="rfc.section.5.2">
 <a href="#rfc.section.5.2">5.2.</a> <a href="#fingerprinting" id="fingerprinting">Fingerprinting</a>
 </h1>
@@ -734,7 +736,7 @@ Client                                      Server
 <a href="#rfc.section.5.3">5.3.</a> <a href="#denial-of-service" id="denial-of-service">Denial of Service</a>
 </h1>
 <p id="rfc.section.5.3.p.1">Failure to provide a certificate on a stream after receiving <samp>CERTIFICATE_NEEDED</samp> blocks processing, and SHOULD be subject to standard timeouts used to guard against unresponsive peers.</p>
-<p id="rfc.section.5.3.p.2">Validating a multitude of signatures can be computationally expensive, while generating an invalid signature is computationally cheap. Implementations will require checks for attacks from this direction. Signature proofs SHOULD NOT be validated until a stream requires the certificate to make progress. A signature which is not valid based on the asserted public key SHOULD be treated as a session error, to avoid further attacks from the peer, though an implementation MAY instead disable HTTP-layer certificates for the current connection instead.</p>
+<p id="rfc.section.5.3.p.2">Validating a multitude of signatures can be computationally expensive, while generating an invalid signature is computationally cheap. Implementations will require checks for attacks from this direction. Invalid exported authenticators SHOULD be treated as a session error, to avoid further attacks from the peer, though an implementation MAY instead disable HTTP-layer certificates for the current connection instead.</p>
 <h1 id="rfc.section.5.4">
 <a href="#rfc.section.5.4">5.4.</a> <a href="#confusion-about-state" id="confusion-about-state">Confusion About State</a>
 </h1>
@@ -872,11 +874,6 @@ Client                                      Server
 <a>Cooper, D.</a>, <a>Santesson, S.</a>, <a>Farrell, S.</a>, <a>Boeyen, S.</a>, <a>Housley, R.</a> and <a>W. Polk</a>, "<a href="https://tools.ietf.org/html/rfc5280">Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile</a>", RFC 5280, DOI 10.17487/RFC5280, May 2008.</td>
 </tr>
 <tr>
-<td class="reference"><b id="RFC5705">[RFC5705]</b></td>
-<td class="top">
-<a>Rescorla, E.</a>, "<a href="https://tools.ietf.org/html/rfc5705">Keying Material Exporters for Transport Layer Security (TLS)</a>", RFC 5705, DOI 10.17487/RFC5705, March 2010.</td>
-</tr>
-<tr>
 <td class="reference"><b id="RFC7230">[RFC7230]</b></td>
 <td class="top">
 <a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a>", RFC 7230, DOI 10.17487/RFC7230, June 2014.</td>
@@ -885,11 +882,6 @@ Client                                      Server
 <td class="reference"><b id="RFC7540">[RFC7540]</b></td>
 <td class="top">
 <a>Belshe, M.</a>, <a>Peon, R.</a> and <a>M. Thomson</a>, "<a href="https://tools.ietf.org/html/rfc7540">Hypertext Transfer Protocol Version 2 (HTTP/2)</a>", RFC 7540, DOI 10.17487/RFC7540, May 2015.</td>
-</tr>
-<tr>
-<td class="reference"><b id="RFC7627">[RFC7627]</b></td>
-<td class="top">
-<a>Bhargavan, K.</a>, <a>Delignat-Lavaud, A.</a>, <a>Pironti, A.</a>, <a>Langley, A.</a> and <a>M. Ray</a>, "<a href="https://tools.ietf.org/html/rfc7627">Transport Layer Security (TLS) Session Hash and Extended Master Secret Extension</a>", RFC 7627, DOI 10.17487/RFC7627, September 2015.</td>
 </tr>
 <tr>
 <td class="reference"><b id="X690">[X690]</b></td>
@@ -901,29 +893,9 @@ Client                                      Server
 <a href="#rfc.references.2">8.2.</a> Informative References</h1>
 <table><tbody>
 <tr>
-<td class="reference"><b id="FIPS-186-4">[FIPS-186-4]</b></td>
+<td class="reference"><b id="I-D.ietf-httpbis-origin-frame">[I-D.ietf-httpbis-origin-frame]</b></td>
 <td class="top">
-<a>National Institute of Standards and Technology</a>, "<a href="http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf">Digital Signature Standard (DSS)</a>", FIPS 186-4, July 2013.</td>
-</tr>
-<tr>
-<td class="reference"><b id="I-D.josefsson-eddsa-ed25519">[I-D.josefsson-eddsa-ed25519]</b></td>
-<td class="top">
-<a>Josefsson, S.</a> and <a>N. Moller</a>, "<a href="https://tools.ietf.org/html/draft-josefsson-eddsa-ed25519-03">EdDSA and Ed25519</a>", Internet-Draft draft-josefsson-eddsa-ed25519-03, May 2015.</td>
-</tr>
-<tr>
-<td class="reference"><b id="PKCS.1.1991">[PKCS.1.1991]</b></td>
-<td class="top">
-<a>RSA Laboratories</a>, "<a>RSA Encryption Standard, Version 1.1</a>", PKCS 1, June 1991.</td>
-</tr>
-<tr>
-<td class="reference"><b id="RFC2560">[RFC2560]</b></td>
-<td class="top">
-<a>Myers, M.</a>, <a>Ankney, R.</a>, <a>Malpani, A.</a>, <a>Galperin, S.</a> and <a>C. Adams</a>, "<a href="https://tools.ietf.org/html/rfc2560">X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP</a>", RFC 2560, DOI 10.17487/RFC2560, June 1999.</td>
-</tr>
-<tr>
-<td class="reference"><b id="RFC6962">[RFC6962]</b></td>
-<td class="top">
-<a>Laurie, B.</a>, <a>Langley, A.</a> and <a>E. Kasper</a>, "<a href="https://tools.ietf.org/html/rfc6962">Certificate Transparency</a>", RFC 6962, DOI 10.17487/RFC6962, June 2013.</td>
+<a>Nottingham, M.</a> and <a>E. Nygren</a>, "<a href="https://tools.ietf.org/html/draft-ietf-httpbis-origin-frame-04">The ORIGIN HTTP/2 Frame</a>", Internet-Draft draft-ietf-httpbis-origin-frame-04, August 2017.</td>
 </tr>
 <tr>
 <td class="reference"><b id="RFC7838">[RFC7838]</b></td>
