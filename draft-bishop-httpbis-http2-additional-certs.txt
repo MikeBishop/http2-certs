@@ -585,7 +585,8 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
    "Request-ID" and "Cert-ID" are sender-local, and the use of the same
    value by the other peer does not imply any correlation between their
-   frames.
+   frames.  These values MUST be unique per sender over the lifetime of
+   the connection.
 
 3.1.  The CERTIFICATE_NEEDED frame
 
@@ -609,7 +610,6 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    certificate MUST be indicated with a separate "CERTIFICATE_NEEDED"
    frame, each of which MUST have a different request identifier
    (referencing different "CERTIFICATE_REQUEST" frames describing each
-   required certificate).  To reduce the risk of client confusion,
 
 
 
@@ -618,6 +618,7 @@ Bishop, et al.             Expires May 3, 2018                 [Page 11]
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
 
+   required certificate).  To reduce the risk of client confusion,
    servers SHOULD NOT have multiple outstanding "CERTIFICATE_NEEDED"
    frames on the same stream at any given time.
 
@@ -665,7 +666,6 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
    The referenced certificate chain MUST conform to the requirements
    expressed in the "CERTIFICATE_REQUEST" to the best of the sender's
-   ability.  Specifically, if the "CERTIFICATE_REQUEST" contained a non-
 
 
 
@@ -674,6 +674,7 @@ Bishop, et al.             Expires May 3, 2018                 [Page 12]
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
 
+   ability.  Specifically, if the "CERTIFICATE_REQUEST" contained a non-
    empty "Cert-Extensions" element, the end-entity certificate MUST
    match with regard to the extensions recognized by the sender.
 
@@ -688,9 +689,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    TLS 1.3 defines the "CertificateRequest" message, which prompts the
    client to provide a certificate which conforms to certain properties
    specified by the server.  This draft defines the
-   "CERTIFICATE_REQUEST" frame (0xFRAME-TBD2), which contains the same
-   contents as a TLS 1.3 "CertificateRequest" message, but can be sent
-   over any TLS version.
+   "CERTIFICATE_REQUEST" frame (0xFRAME-TBD2), which uses the same set
+   of extensions to specify a desired certificate, but can be sent over
+   any TLS version and can be sent by either peer.
 
    The "CERTIFICATE_REQUEST" frame SHOULD NOT be sent to a peer which
    has not advertised support for HTTP-layer certificate authentication.
@@ -721,7 +722,6 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
       certificate selection as described in [I-D.ietf-tls-tls13].  The
       number of "Extension" structures is given by the 16-bit
       "Extension-Count" field, which MAY be zero.
-
 
 
 
