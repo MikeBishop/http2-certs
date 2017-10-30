@@ -745,10 +745,10 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 3.4.  The CERTIFICATE Frame
 
    The "CERTIFICATE" frame (id=0xFRAME-TBD3) provides a exported
-   authenticator message ([I-D.ietf-tls-exported-authenticator]) from
-   the TLS layer that provides a chain of certificates, associated
-   extensions and proves possession of the private key corresponding to
-   the end-entity certificate.
+   authenticator message (see Section 3.4.1) from the TLS layer that
+   provides a chain of certificates, associated extensions and proves
+   possession of the private key corresponding to the end-entity
+   certificate.
 
    The "CERTIFICATE" frame defines two flags:
 
