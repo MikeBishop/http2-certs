@@ -664,7 +664,7 @@ Client                                      Server
 <h1 id="rfc.section.3.4">
 <a href="#rfc.section.3.4">3.4.</a> <a href="#http-cert" id="http-cert">The CERTIFICATE Frame</a>
 </h1>
-<p id="rfc.section.3.4.p.1">The <samp>CERTIFICATE</samp> frame (id=0xFRAME-TBD3) provides a exported authenticator message (see <a href="#exp-auth" class="xref">Section 3.4.1</a>) from the TLS layer that provides a chain of certificates, associated extensions and proves possession of the private key corresponding to the end-entity certificate.</p>
+<p id="rfc.section.3.4.p.1">The <samp>CERTIFICATE</samp> frame (id=0xFRAME-TBD3) provides a exported authenticator message from the TLS layer that provides a chain of certificates, associated extensions and proves possession of the private key corresponding to the end-entity certificate.</p>
 <p id="rfc.section.3.4.p.2">The <samp>CERTIFICATE</samp> frame defines two flags:</p>
 <p></p>
 
@@ -684,7 +684,7 @@ Client                                      Server
  +---------------------------------------------------------------+
 </pre>
 <p class="figure">Figure 8: CERTIFICATE frame payload</p>
-<p id="rfc.section.3.4.p.4">The <samp>Exported Authenticator Fragment</samp> field contains a portion of the opaque data returned from the TLS connection exported authenticator API when provided with a certificate, a valid certificate chain for the connection and associated extensions (OCSP, SCT, etc.), and a connection-unique 8-byte certificate_request_context value.</p>
+<p id="rfc.section.3.4.p.4">The <samp>Exported Authenticator Fragment</samp> field contains a portion of the opaque data returned from the TLS connection exported authenticator <samp>authenticate</samp> API.  See <a href="#exp-auth" class="xref">Section 3.4.1</a> for more details on the input to this API.</p>
 <p id="rfc.section.3.4.p.5">This opaque data is transported in zero or more <samp>CERTIFICATE</samp> frames with the <samp>TO_BE_CONTINUED</samp> flag set, followed by one <samp>CERTIFICATE</samp> frame with the <samp>TO_BE_CONTINUED</samp> flag unset.  Each of these frames contains the same <samp>Cert-ID</samp> field, permitting them to be associated with each other.  Receipt of any <samp>CERTIFICATE</samp> frame with the same <samp>Cert-ID</samp> following the receipt of a <samp>CERTIFICATE</samp> frame with <samp>TO_BE_CONTINUED</samp> unset MUST be treated as a connection error of type <samp>PROTOCOL_ERROR</samp>.</p>
 <p id="rfc.section.3.4.p.6">If the <samp>AUTOMATIC_USE</samp> flag is set, the recipient MAY omit sending <samp>CERTIFICATE_NEEDED</samp> frames on future streams which would require a similar certificate and use the referenced certificate for authentication without further notice to the holder. This behavior is optional, and receipt of a <samp>CERTIFICATE_NEEDED</samp> frame does not imply that previously-presented certificates were unacceptable, even if <samp>AUTOMATIC_USE</samp> was set. Servers MUST set the <samp>AUTOMATIC_USE</samp> flag when sending a <samp>CERTIFICATE</samp> frame. A server MUST NOT send certificates for origins which it is not prepared to service on the current connection.</p>
 <p id="rfc.section.3.4.p.7">Upon receiving a complete series of <samp>CERTIFICATE</samp> frames, the receiver may validate the Exported Authenticator value by using the exported authenticator API. This returns either an error indicating that the message was invalid, or the certificate chain and extensions used to create the message.</p>

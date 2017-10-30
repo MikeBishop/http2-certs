@@ -102,7 +102,7 @@ Table of Contents
      3.4.  The CERTIFICATE Frame . . . . . . . . . . . . . . . . . .  14
        3.4.1.  Exported Authenticator Characteristics  . . . . . . .  15
    4.  Indicating failures during HTTP-Layer Certificate
-       Authentication  . . . . . . . . . . . . . . . . . . . . . . .  16
+       Authentication  . . . . . . . . . . . . . . . . . . . . . . .  15
    5.  Security Considerations . . . . . . . . . . . . . . . . . . .  16
      5.1.  Impersonation . . . . . . . . . . . . . . . . . . . . . .  16
      5.2.  Fingerprinting  . . . . . . . . . . . . . . . . . . . . .  17
@@ -115,7 +115,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
 
      5.3.  Denial of Service . . . . . . . . . . . . . . . . . . . .  17
-     5.4.  Confusion About State . . . . . . . . . . . . . . . . . .  18
+     5.4.  Confusion About State . . . . . . . . . . . . . . . . . .  17
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
      6.1.  HTTP/2 SETTINGS_HTTP_CERT_AUTH Setting  . . . . . . . . .  18
      6.2.  New HTTP/2 Frames . . . . . . . . . . . . . . . . . . . .  18
@@ -745,10 +745,9 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 3.4.  The CERTIFICATE Frame
 
    The "CERTIFICATE" frame (id=0xFRAME-TBD3) provides a exported
-   authenticator message (see Section 3.4.1) from the TLS layer that
-   provides a chain of certificates, associated extensions and proves
-   possession of the private key corresponding to the end-entity
-   certificate.
+   authenticator message from the TLS layer that provides a chain of
+   certificates, associated extensions and proves possession of the
+   private key corresponding to the end-entity certificate.
 
    The "CERTIFICATE" frame defines two flags:
 
@@ -768,9 +767,8 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
    The "Exported Authenticator Fragment" field contains a portion of the
    opaque data returned from the TLS connection exported authenticator
-   API when provided with a certificate, a valid certificate chain for
-   the connection and associated extensions (OCSP, SCT, etc.), and a
-   connection-unique 8-byte certificate_request_context value.
+   "authenticate" API.  See Section 3.4.1 for more details on the input
+   to this API.
 
    This opaque data is transported in zero or more "CERTIFICATE" frames
    with the "TO_BE_CONTINUED" flag set, followed by one "CERTIFICATE"
@@ -778,6 +776,8 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    contains the same "Cert-ID" field, permitting them to be associated
    with each other.  Receipt of any "CERTIFICATE" frame with the same
    "Cert-ID" following the receipt of a "CERTIFICATE" frame with
+   "TO_BE_CONTINUED" unset MUST be treated as a connection error of type
+   "PROTOCOL_ERROR".
 
 
 
@@ -785,9 +785,6 @@ Bishop, et al.             Expires May 3, 2018                 [Page 14]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
-
-   "TO_BE_CONTINUED" unset MUST be treated as a connection error of type
-   "PROTOCOL_ERROR".
 
    If the "AUTOMATIC_USE" flag is set, the recipient MAY omit sending
    "CERTIFICATE_NEEDED" frames on future streams which would require a
@@ -831,8 +828,11 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    Once the authenticator is accepted, the endpoint can perform any
    other checks for the acceptability of the certificate itself.
 
+4.  Indicating failures during HTTP-Layer Certificate Authentication
 
-
+   Because this draft permits certificates to be exchanged at the HTTP
+   framing layer instead of the TLS layer, several certificate-related
+   errors which are defined at the TLS layer might now occur at the HTTP
 
 
 
@@ -842,11 +842,6 @@ Bishop, et al.             Expires May 3, 2018                 [Page 15]
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
 
-4.  Indicating failures during HTTP-Layer Certificate Authentication
-
-   Because this draft permits certificates to be exchanged at the HTTP
-   framing layer instead of the TLS layer, several certificate-related
-   errors which are defined at the TLS layer might now occur at the HTTP
    framing layer.  In this section, those errors are restated and added
    to the HTTP/2 error code registry.
 
@@ -890,6 +885,11 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    compromised certificate, a malicious server now only needs a client
    to connect to _some_ HTTPS site under its control in order to present
    the compromised certificate.  As recommended in
+   [I-D.ietf-httpbis-origin-frame], clients opting not to consult DNS
+   ought to employ some alternative means to increase confidence that
+   the certificate is legitimate.
+
+
 
 
 
@@ -897,10 +897,6 @@ Bishop, et al.             Expires May 3, 2018                 [Page 16]
 
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
-
-   [I-D.ietf-httpbis-origin-frame], clients opting not to consult DNS
-   ought to employ some alternative means to increase confidence that
-   the certificate is legitimate.
 
    As noted in the Security Considerations of
    [I-D.ietf-tls-exported-authenticator], it difficult to formally prove
@@ -943,9 +939,13 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    implementation MAY instead disable HTTP-layer certificates for the
    current connection instead.
 
+5.4.  Confusion About State
 
-
-
+   Implementations need to be aware of the potential for confusion about
+   the state of a connection.  The presence or absence of a validated
+   certificate can change during the processing of a request,
+   potentially multiple times, as "USE_CERTIFICATE" frames are received.
+   A server that uses certificate authentication needs to be prepared to
 
 
 
@@ -954,13 +954,6 @@ Bishop, et al.             Expires May 3, 2018                 [Page 17]
 Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
 
 
-5.4.  Confusion About State
-
-   Implementations need to be aware of the potential for confusion about
-   the state of a connection.  The presence or absence of a validated
-   certificate can change during the processing of a request,
-   potentially multiple times, as "USE_CERTIFICATE" frames are received.
-   A server that uses certificate authentication needs to be prepared to
    reevaluate the authorization state of a request as the set of
    certificates changes.
 
@@ -1002,6 +995,13 @@ Internet-Draft        Secondary Cert Auth in HTTP/2         October 2017
    Four new frame types are registered in the "HTTP/2 Frame Types"
    registry established in [RFC7540].  The entries in the following
    table are registered by this document.
+
+
+
+
+
+
+
 
 
 
