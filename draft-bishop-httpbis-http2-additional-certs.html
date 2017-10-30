@@ -292,6 +292,7 @@ address {
 <link href="#rfc.section.3.2" rel="Chapter" title="3.2 The USE_CERTIFICATE Frame">
 <link href="#rfc.section.3.3" rel="Chapter" title="3.3 The CERTIFICATE_REQUEST Frame">
 <link href="#rfc.section.3.4" rel="Chapter" title="3.4 The CERTIFICATE Frame">
+<link href="#rfc.section.3.4.1" rel="Chapter" title="3.4.1 Exported Authenticator Characteristics">
 <link href="#rfc.section.4" rel="Chapter" title="4 Indicating failures during HTTP-Layer Certificate Authentication">
 <link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations">
 <link href="#rfc.section.5.1" rel="Chapter" title="5.1 Impersonation">
@@ -314,7 +315,7 @@ address {
 
   <meta name="dct.creator" content="Bishop, M., Sullivan, N., and M. Thomson" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-bishop-httpbis-http2-additional-certs-latest" />
-  <meta name="dct.issued" scheme="ISO8601" content="2017-10-27" />
+  <meta name="dct.issued" scheme="ISO8601" content="2017-10-30" />
   <meta name="dct.abstract" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
   <meta name="description" content="TLS provides fundamental mutual authentication services for HTTP, supporting up to one server certificate and up to one client certificate associated to the session to prove client and server identities as necessary. This draft provides mechanisms for providing additional such certificates at the HTTP layer when these constraints are not sufficient." />
 
@@ -331,14 +332,14 @@ address {
 </tr>
 <tr>
 <td class="left">Internet-Draft</td>
-<td class="right">Microsoft</td>
+<td class="right"></td>
 </tr>
 <tr>
 <td class="left">Intended status: Standards Track</td>
 <td class="right">N. Sullivan</td>
 </tr>
 <tr>
-<td class="left">Expires: April 30, 2018</td>
+<td class="left">Expires: May 3, 2018</td>
 <td class="right">Cloudflare</td>
 </tr>
 <tr>
@@ -351,7 +352,7 @@ address {
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">October 27, 2017</td>
+<td class="right">October 30, 2017</td>
 </tr>
 
     	
@@ -370,7 +371,7 @@ address {
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 30, 2018.</p>
+<p>This Internet-Draft will expire on May 3, 2018.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2017 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -414,7 +415,9 @@ address {
 </li>
 <li>3.4.   <a href="#rfc.section.3.4">The CERTIFICATE Frame</a>
 </li>
-</ul><li>4.   <a href="#rfc.section.4">Indicating failures during HTTP-Layer Certificate Authentication</a>
+<ul><li>3.4.1.   <a href="#rfc.section.3.4.1">Exported Authenticator Characteristics</a>
+</li>
+</ul></ul><li>4.   <a href="#rfc.section.4">Indicating failures during HTTP-Layer Certificate Authentication</a>
 </li>
 <li>5.   <a href="#rfc.section.5">Security Considerations</a>
 </li>
@@ -614,7 +617,7 @@ Client                                      Server
 <a href="#rfc.section.3.1">3.1.</a> <a href="#http-cert-needed" id="http-cert-needed">The CERTIFICATE_NEEDED frame</a>
 </h1>
 <p id="rfc.section.3.1.p.1">The <samp>CERTIFICATE_NEEDED</samp> frame (0xFRAME-TBD1) is sent to indicate that the HTTP request on the current stream is blocked pending certificate authentication. The frame includes a request identifier which can be used to correlate the stream with a previous <samp>CERTIFICATE_REQUEST</samp> frame sent on stream zero. The <samp>CERTIFICATE_REQUEST</samp> describes the certificate the sender requires to make progress on the stream in question.</p>
-<p id="rfc.section.3.1.p.2">The <samp>CERTIFICATE_NEEDED</samp> frame contains 1 octet, which is the authentication request identifier, <samp>Request-ID</samp>. A peer that receives a <samp>CERTIFICATE_NEEDED</samp> of any other length MUST treat this as a stream error of type <samp>PROTOCOL_ERROR</samp>. Frames with identical request identifiers refer to the same <samp>CERTIFICATE_REQUEST</samp>.</p>
+<p id="rfc.section.3.1.p.2">The <samp>CERTIFICATE_NEEDED</samp> frame contains 2 octets, which is the authentication request identifier, <samp>Request-ID</samp>. A peer that receives a <samp>CERTIFICATE_NEEDED</samp> of any other length MUST treat this as a stream error of type <samp>PROTOCOL_ERROR</samp>. Frames with identical request identifiers refer to the same <samp>CERTIFICATE_REQUEST</samp>.</p>
 <p id="rfc.section.3.1.p.3">A server MAY send multiple <samp>CERTIFICATE_NEEDED</samp> frames on the same stream. If a server requires that a client provide multiple certificates before authorizing a single request, each required certificate MUST be indicated with a separate <samp>CERTIFICATE_NEEDED</samp> frame, each of which MUST have a different request identifier (referencing different <samp>CERTIFICATE_REQUEST</samp> frames describing each required certificate). To reduce the risk of client confusion, servers SHOULD NOT have multiple outstanding <samp>CERTIFICATE_NEEDED</samp> frames on the same stream at any given time.</p>
 <p id="rfc.section.3.1.p.4">Clients MUST NOT send multiple <samp>CERTIFICATE_NEEDED</samp> frames on the same stream.</p>
 <p id="rfc.section.3.1.p.5">The <samp>CERTIFICATE_NEEDED</samp> frame MUST NOT be sent to a peer which has not advertised support for HTTP-layer certificate authentication.</p>
@@ -624,16 +627,10 @@ Client                                      Server
 </h1>
 <p id="rfc.section.3.2.p.1">The <samp>USE_CERTIFICATE</samp> frame (0xFRAME-TBD4) is sent in response to a <samp>CERTIFICATE_NEEDED</samp> frame to indicate which certificate is being used to satisfy the requirement.</p>
 <p id="rfc.section.3.2.p.2">A <samp>USE_CERTIFICATE</samp> frame with no payload refers to the certificate provided at the TLS layer, if any. If no certificate was provided at the TLS layer, the stream should be processed with no authentication, likely returning an authentication-related error at the HTTP level (e.g. 403) for servers or routing the request to a new connection for clients.</p>
-<p id="rfc.section.3.2.p.3">Otherwise, the <samp>USE_CERTIFICATE</samp> frame contains the <samp>Cert-ID</samp> of the certificate the sender wishes to use. This MUST be the ID of a certificate for which proof of possession has been presented in a <samp>CERTIFICATE</samp> frame. Recipients of a <samp>USE_CERTIFICATE</samp> frame of any other length MUST treat this as a stream error of type <samp>PROTOCOL_ERROR</samp>. Frames with identical certificate identifiers refer to the same certificate chain.</p>
+<p id="rfc.section.3.2.p.3">Otherwise, the <samp>USE_CERTIFICATE</samp> frame contains the two-octet <samp>Cert-ID</samp> of the certificate the sender wishes to use. This MUST be the ID of a certificate for which proof of possession has been presented in a <samp>CERTIFICATE</samp> frame.  Recipients of a <samp>USE_CERTIFICATE</samp> frame of any other length MUST treat this as a stream error of type <samp>PROTOCOL_ERROR</samp>. Frames with identical certificate identifiers refer to the same certificate chain.</p>
 <p id="rfc.section.3.2.p.4">The <samp>USE_CERTIFICATE</samp> frame MUST NOT be sent on stream zero or a stream on which a <samp>CERTIFICATE_NEEDED</samp> frame has not been received. Receipt of a <samp>USE_CERTIFICATE</samp> frame in these circumstances SHOULD be treated as a stream error of type <samp>PROTOCOL_ERROR</samp>. Each <samp>USE_CERTIFICATE</samp> frame should reference a preceding <samp>CERTIFICATE</samp> frame. Receipt of a <samp>USE_CERTIFICATE</samp> frame before the necessary frames have been received on stream zero MUST also result in a stream error of type <samp>PROTOCOL_ERROR</samp>.</p>
-<p id="rfc.section.3.2.p.5">The referenced certificate chain MUST conform to the requirements expressed in the <samp>CERTIFICATE_REQUEST</samp> to the best of the sender&#8217;s ability. Specifically:</p>
-<p></p>
-
-<ul>
-<li>If the <samp>CERTIFICATE_REQUEST</samp> contained a non-empty <samp>Certificate-Authorities</samp> element, one of the certificates in the chain SHOULD be signed by one of the listed CAs.</li>
-<li>If the <samp>CERTIFICATE_REQUEST</samp> contained a non-empty <samp>Cert-Extensions</samp> element, the end-entity certificate MUST match with regard to the extension OIDs recognized by the sender.</li>
-</ul>
-<p id="rfc.section.3.2.p.7">If these requirements are not satisfied, the recipient MAY at its discretion either return an error at the HTTP semantic layer, or respond with a stream error <a href="#RFC7540" class="xref">[RFC7540]</a> on any stream where the certificate is used. <a href="#errors" class="xref">Section 4</a> defines certificate-related error codes which might be applicable.</p>
+<p id="rfc.section.3.2.p.5">The referenced certificate chain MUST conform to the requirements expressed in the <samp>CERTIFICATE_REQUEST</samp> to the best of the sender&#8217;s ability. Specifically, if the <samp>CERTIFICATE_REQUEST</samp> contained a non-empty <samp>Cert-Extensions</samp> element, the end-entity certificate MUST match with regard to the extensions recognized by the sender.</p>
+<p id="rfc.section.3.2.p.6">If these requirements are not satisfied, the recipient MAY at its discretion either return an error at the HTTP semantic layer, or respond with a stream error <a href="#RFC7540" class="xref">[RFC7540]</a> on any stream where the certificate is used. <a href="#errors" class="xref">Section 4</a> defines certificate-related error codes which might be applicable.</p>
 <h1 id="rfc.section.3.3">
 <a href="#rfc.section.3.3">3.3.</a> <a href="#http-cert-request" id="http-cert-request">The CERTIFICATE_REQUEST Frame</a>
 </h1>
@@ -645,9 +642,9 @@ Client                                      Server
 <pre>
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- +---------------+-------------------------------+---------------+
- | Request-ID (8)|      Extension-Count (16)     |
- +-----------------------------------------------+---------------+
+ +-------------------------------+-------------------------------+
+ |        Request-ID (16)        |      Extension-Count (16)     |
+ +-------------------------------+-------------------------------+
  |                          Extensions(?)                      ...
  +---------------------------------------------------------------+
 </pre>
@@ -658,12 +655,12 @@ Client                                      Server
 <dl>
 <dt>Request-ID:</dt>
 <dd style="margin-left: 8">
-<samp>Request-ID</samp> is an 8-bit opaque identifier used to correlate subsequent certificate-related frames with this request.  The identifier MUST be unique in the session for the sender.</dd>
+<samp>Request-ID</samp> is a 16-bit opaque identifier used to correlate subsequent certificate-related frames with this request.  The identifier MUST be unique in the session for the sender.</dd>
 <dt>Extension-Count and Extensions:</dt>
 <dd style="margin-left: 8">A list of certificate selection criteria, represented in a series of <samp>Extension</samp> structures (see <a href="#I-D.ietf-tls-tls13" class="xref">[I-D.ietf-tls-tls13]</a> section 4.2). This criteria MUST be used in certificate selection as described in <a href="#I-D.ietf-tls-tls13" class="xref">[I-D.ietf-tls-tls13]</a>.  The number of <samp>Extension</samp> structures is given by the 16-bit <samp>Extension-Count</samp> field, which MAY be zero.</dd>
 </dl>
 <p id="rfc.section.3.3.p.6">Some extensions used for certificate selection allow multiple values (e.g.  oid_filters on Extended Key Usage). If the sender has included a non-empty Extensions list, the certificate MUST match all criteria specified by extensions the recipient recognizes. However, the recipient MUST ignore and skip any unrecognized certificate selection extensions.</p>
-<p id="rfc.section.3.3.p.7">Servers MUST be able to recognize the <samp>server_name</samp> extension ([RFC6066]) at a minimum. Clients MUST always specify the desired origin using this extension, though other extensions MAY also be included.</p>
+<p id="rfc.section.3.3.p.7">Servers MUST be able to recognize the <samp>server_name</samp> extension (<a href="#RFC6066" class="xref">[RFC6066]</a>) at a minimum. Clients MUST always specify the desired origin using this extension, though other extensions MAY also be included.</p>
 <h1 id="rfc.section.3.4">
 <a href="#rfc.section.3.4">3.4.</a> <a href="#http-cert" id="http-cert">The CERTIFICATE Frame</a>
 </h1>
@@ -683,7 +680,7 @@ Client                                      Server
   0                   1                   2                   3
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  +-------------------------------+-------------------------------+
- |  Cert-ID (8)  |      Exported Authenticator Fragment (*)    ...
+ |          Cert-ID (16)         |   Authenticator Fragment (*)...
  +---------------------------------------------------------------+
 </pre>
 <p class="figure">Figure 8: CERTIFICATE frame payload</p>
@@ -692,6 +689,18 @@ Client                                      Server
 <p id="rfc.section.3.4.p.6">If the <samp>AUTOMATIC_USE</samp> flag is set, the recipient MAY omit sending <samp>CERTIFICATE_NEEDED</samp> frames on future streams which would require a similar certificate and use the referenced certificate for authentication without further notice to the holder. This behavior is optional, and receipt of a <samp>CERTIFICATE_NEEDED</samp> frame does not imply that previously-presented certificates were unacceptable, even if <samp>AUTOMATIC_USE</samp> was set. Servers MUST set the <samp>AUTOMATIC_USE</samp> flag when sending a <samp>CERTIFICATE</samp> frame. A server MUST NOT send certificates for origins which it is not prepared to service on the current connection.</p>
 <p id="rfc.section.3.4.p.7">Upon receiving a complete series of <samp>CERTIFICATE</samp> frames, the receiver may validate the Exported Authenticator value by using the exported authenticator API. This returns either an error indicating that the message was invalid, or the certificate chain and extensions used to create the message.</p>
 <p id="rfc.section.3.4.p.8">The <samp>CERTIFICATE</samp> frame MUST be sent on stream zero.  A <samp>CERTIFICATE</samp> frame received on any other stream MUST be rejected with a stream error of type <samp>PROTOCOL_ERROR</samp>.</p>
+<h1 id="rfc.section.3.4.1">
+<a href="#rfc.section.3.4.1">3.4.1.</a> <a href="#exp-auth" id="exp-auth">Exported Authenticator Characteristics</a>
+</h1>
+<p id="rfc.section.3.4.1.p.1">The Exported Authenticator API defined in <a href="#I-D.ietf-tls-exported-authenticator" class="xref">[I-D.ietf-tls-exported-authenticator]</a> takes as input a certificate, supporting information about the certificate (OCSP, SCT, etc.), and an optional <samp>certificate_request_context</samp>.  When generating exported authenticators for use with this extension, the <samp>certificate_request_context</samp> MUST be the two-octet Cert-ID.</p>
+<p id="rfc.section.3.4.1.p.2">Upon receipt of a completed authenticator, an endpoint MUST check that:</p>
+<p></p>
+
+<ul>
+<li>the <samp>validate</samp> API confirms the validity of the authenticator itself</li>
+<li>the <samp>certificate_request_context</samp> matches the Cert-ID of the frame(s) in which it was received</li>
+</ul>
+<p id="rfc.section.3.4.1.p.4">Once the authenticator is accepted, the endpoint can perform any other checks for the acceptability of the certificate itself.</p>
 <h1 id="rfc.section.4">
 <a href="#rfc.section.4">4.</a> <a href="#errors" id="errors">Indicating failures during HTTP-Layer Certificate Authentication</a>
 </h1>
@@ -867,6 +876,11 @@ Client                                      Server
 <a>Cooper, D.</a>, <a>Santesson, S.</a>, <a>Farrell, S.</a>, <a>Boeyen, S.</a>, <a>Housley, R.</a> and <a>W. Polk</a>, "<a href="https://tools.ietf.org/html/rfc5280">Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile</a>", RFC 5280, DOI 10.17487/RFC5280, May 2008.</td>
 </tr>
 <tr>
+<td class="reference"><b id="RFC6066">[RFC6066]</b></td>
+<td class="top">
+<a>Eastlake 3rd, D.</a>, "<a href="https://tools.ietf.org/html/rfc6066">Transport Layer Security (TLS) Extensions: Extension Definitions</a>", RFC 6066, DOI 10.17487/RFC6066, January 2011.</td>
+</tr>
+<tr>
 <td class="reference"><b id="RFC7230">[RFC7230]</b></td>
 <td class="top">
 <a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a>", RFC 7230, DOI 10.17487/RFC7230, June 2014.</td>
@@ -905,7 +919,7 @@ Client                                      Server
 		<span class="family-name">Bishop</span>
 	  </span>
 	</span>
-	<span class="org vcardline">Microsoft</span>
+	<span class="org vcardline"></span>
 	<span class="adr">
 	  
 	  <span class="vcardline">
@@ -915,7 +929,7 @@ Client                                      Server
 	  </span>
 	  <span class="country-name vcardline"></span>
 	</span>
-	<span class="vcardline">EMail: <a href="mailto:michael.bishop@microsoft.com">michael.bishop@microsoft.com</a></span>
+	<span class="vcardline">EMail: <a href="mailto:mbishop@evequefou.be">mbishop@evequefou.be</a></span>
 
   </address>
 </div><div class="avoidbreak">
