@@ -731,7 +731,7 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
 
 
    When generating exported authenticators for use with this extension,
-   the "certificate_request_context" MUST be the two-octet Cert-ID.
+   the "certificate_request_context" MUST be the two-octet Request-ID.
 
    The TLS library on the authenticating peer will provide mechanisms to
    select an appropriate certificate to respond to the transported
@@ -817,10 +817,11 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
    Upon receipt of a completed authenticator, an endpoint MUST perform
    the following steps: - Using the "get context" API, retrieve the
    "certificate_request_context" used to generate the authenticator, if
-   any.  - Verify that the "certificate_request_context" is one
-   previously generated or, when processed by a client, is absent.  -
+   any.  - Verify that the "certificate_request_context" is the Request-
+   ID of a previously-sent "CERTIFICATE_REQUEST" frame.  Alternatively,
+   on clients the "certificate_request_context" MAY also be empty.  -
    Use the "validate" API to confirm the validity of the authenticator
-   with regard to the generated request.
+   with regard to the generated request (if any).
 
    Once the authenticator is accepted, the endpoint can perform any
    other checks for the acceptability of the certificate itself.
@@ -832,7 +833,6 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
    errors which are defined at the TLS layer might now occur at the HTTP
    framing layer.  In this section, those errors are restated and added
    to the HTTP/2 error code registry.
-
 
 
 
