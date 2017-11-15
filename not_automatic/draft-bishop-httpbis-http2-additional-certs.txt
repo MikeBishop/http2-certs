@@ -519,10 +519,10 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
    A server SHOULD provide certificates for an origin before pushing
    resources from it or supplying content referencing the origin.  If a
    client receives a "PUSH_PROMISE" referencing an origin for which it
-   has not yet received the server's certificate, the client MUST verify
-   the server's possession of an appropriate certificate by sending a
-   "CERTIFICATE_NEEDED" frame on the pushed stream to inform the server
-   that progress is blocked until the request is satisfied.
+   has not yet received the server's certificate, the client SHOULD
+   verify the server's possession of an appropriate certificate by
+   sending a "CERTIFICATE_NEEDED" frame on the pushed stream to inform
+   the server that progress is blocked until the request is satisfied.
 
    If the certificate is already available, the server SHOULD
    immediately respond with the appropriate "USE_CERTIFICATE" frame.
@@ -532,7 +532,8 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
 
    If the server does not have the desired certificate, it MUST respond
    with an empty "USE_CERTIFICATE" frame.  In this case, or if the
-   server has not advertised support for HTTP-layer certificates, the
+   server has not advertised support for HTTP-layer certificates, or if
+   the client chooses not to request the server's certificate, the
    client MUST NOT process the pushed content.
 
 2.3.2.  Requiring a client certificate
@@ -548,7 +549,6 @@ Internet-Draft        Secondary Cert Auth in HTTP/2        November 2017
    with an empty "USE_CERTIFICATE" frame.  In this case, the server will
    process the request using only the certificate provided in the TLS
    handshake (if any), likely resulting in an HTTP error.
-
 
 
 
